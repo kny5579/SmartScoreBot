@@ -22,15 +22,15 @@ public class StudentAnswer { //학생 답안 저장
     @JoinColumn(name = "exam_id", nullable = false)
     private Exam exam; //시험 정보
 
-    @Column(nullable = false)
+    @Column(name = "studentAnswer", nullable = false)
     private Long studentAnswer; //학생 답안
 
     @Builder
     StudentAnswer(Long id, Student student, Exam exam, Long studentAnswer) {
-        this.id=id;
-        this.student=student;
-        this.exam=exam;
-        this.studentAnswer=studentAnswer;
+        this.id = id;
+        this.student = student;
+        this.exam = exam;
+        this.studentAnswer = studentAnswer;
     }
 
 }

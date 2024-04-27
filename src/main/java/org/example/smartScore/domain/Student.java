@@ -17,9 +17,13 @@ public class Student { //학생 정보 저장
     @Column(nullable = false)
     private Long studentNumber; //학번
 
+    @Column(name = "score")
+    private int totalScore; //점수
+
     @Builder
-    Student(Long id, Long studentNumber) {
-        this.id=id;
-        this.studentNumber=studentNumber;
+    Student(Long id, Long studentNumber, int totalScore) {
+        this.id = id;
+        this.studentNumber = studentNumber;
+        this.totalScore = totalScore;
     }
 }

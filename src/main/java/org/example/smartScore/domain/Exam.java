@@ -27,16 +27,17 @@ public class Exam { //시험 정보 저장
 
     @Builder
     Exam(Long id, int examNumber, int examScore) {
-        this.id=id;
-        this.examNumber=examNumber;
-        this.examScore=examScore;
+        this.id = id;
+        this.examNumber = examNumber;
+        this.examScore = examScore;
     }
+
     @Builder
     Exam(Long id, int examNumber, int examScore, Date examDate) {
-        this.id=id;
-        this.examNumber=examNumber;
-        this.examScore=examScore;
-        this.examDate=examDate;
+        this.id = id;
+        this.examNumber = examNumber;
+        this.examScore = examScore;
+        this.examDate = examDate;
     }
 
 }
