@@ -2,6 +2,7 @@ package org.example.smartScore.domain;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -22,6 +23,14 @@ public class StudentAnswer { //학생 답안 저장
     private Exam exam; //시험 정보
 
     @Column(nullable = false)
-    private String studentAnswer; //학생 답안
+    private Long studentAnswer; //학생 답안
+
+    @Builder
+    StudentAnswer(Long id, Student student, Exam exam, Long studentAnswer) {
+        this.id=id;
+        this.student=student;
+        this.exam=exam;
+        this.studentAnswer=studentAnswer;
+    }
 
 }

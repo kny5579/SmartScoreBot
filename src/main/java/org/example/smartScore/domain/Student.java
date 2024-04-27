@@ -2,6 +2,7 @@ package org.example.smartScore.domain;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -16,4 +17,9 @@ public class Student { //학생 정보 저장
     @Column(nullable = false)
     private Long studentNumber; //학번
 
+    @Builder
+    Student(Long id, Long studentNumber) {
+        this.id=id;
+        this.studentNumber=studentNumber;
+    }
 }
