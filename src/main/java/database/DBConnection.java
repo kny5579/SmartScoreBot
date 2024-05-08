@@ -17,7 +17,7 @@ public class DBConnection {
 		try
 		{
 	         Class.forName("com.mysql.jdbc.Driver");
-	         con = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/AI_grade","root","1234");
+	         con = DriverManager.getConnection("jdbc:mysql://localhost:3306/mydatabase","root","1234");
 	         st =con.createStatement();
 	    }
 	    catch(Exception e)
