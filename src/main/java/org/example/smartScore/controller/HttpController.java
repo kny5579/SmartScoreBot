@@ -26,7 +26,7 @@ public class HttpController {
     private ProcessedFileRepository processedFileRepository;
 
     @PostMapping("/upload")
-    public ResponseEntity<String> uploadImages(@RequestParam("student_files") MultipartFile[] studentFiles,
+    public String uploadImages(@RequestParam("student_files") MultipartFile[] studentFiles,
                                                @RequestParam("answer_files") MultipartFile[] answerFiles,
                                                @RequestParam("exam_date") String dateString) throws IOException, ParseException {
 
@@ -105,6 +105,6 @@ public class HttpController {
             zipInputStream.close();
         }
 
-        return ResponseEntity.ok("success");
+        return "redirect:/result?exam_date=" + date;
     }
 }
