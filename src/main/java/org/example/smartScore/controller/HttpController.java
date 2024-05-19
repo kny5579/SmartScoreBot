@@ -27,8 +27,8 @@ public class HttpController {
 
     @PostMapping("/upload")
     public String uploadImages(@RequestParam("student_files") MultipartFile[] studentFiles,
-                                               @RequestParam("answer_files") MultipartFile[] answerFiles,
-                                               @RequestParam("exam_date") String dateString) throws IOException, ParseException {
+                               @RequestParam("answer_files") MultipartFile[] answerFiles,
+                               @RequestParam("exam_date") String dateString) throws IOException, ParseException {
 
         // Flask 서버의 URL
         String flaskUrl = "http://localhost:5000/upload";
@@ -105,6 +105,6 @@ public class HttpController {
             zipInputStream.close();
         }
 
-        return "redirect:/result?exam_date=" + date;
+        return "redirect:/result?exam_date=" + dateFormat.format(date);
     }
 }

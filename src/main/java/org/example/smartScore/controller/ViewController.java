@@ -7,6 +7,7 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.ui.Model;
@@ -18,6 +19,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+@Controller
 public class ViewController {
     @Autowired
     private ProcessedFileRepository processedFileRepository;
@@ -49,17 +51,13 @@ public class ViewController {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         Date examDate = dateFormat.parse(examDateString);
 
-        // 이미지 파일의 mime 타입 목록
-        String[] imageMimeTypes = {"image/jpeg", "image/png", "image/gif"};
-
         // 해당 날짜의 이미지 파일 목록 가져오기
         List<ProcessedFileEntity> files = new ArrayList<>();
-        for (String mimeType : imageMimeTypes) {
-            processedFileRepository.findByDateAndFileType(examDate, mimeType).ifPresent(files::add);
-        }
+        processedFileRepository.findByDateAndFileType(examDate, "image").ifPresent(files::add);
 
         // 모델에 파일 목록 추가
         model.addAttribute("files", files);
+        model.addAttribute("examDate", examDateString);
 
         return "result";
     }

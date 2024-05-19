@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
@@ -5,59 +6,19 @@
   <title>스마트 채점봇</title>
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
   <style>
-        .custom-container {
-            padding: 5rem 0;
-        }
-    </style>
-</head>
-<body>
-  <div class="container-fluid bg-light custom-container">
-    <div class="text-center">
-      <h1 class="mb-3">스마트 채점봇</h1>
-      <h4 class="mb-5">채점 결과</h4>
-    </div>
-  </div>
-  <div class="row mt-5">
-    <div class="col-md-12 text-center">
-      <form action="/download/excel" method="get">
-        <input type="hidden" name="download_date" th:value="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}">
-        <button type="submit" class="btn btn-primary">엑셀 파일 다운로드</button>
-      </form>
-    </div>
-  </div>
-  <div class="row mt-5">
-    <div class="col-md-12">
-      <ul class="list-group">
-        <li class="list-group-item active">채점 이미지 목록</li>
-        <th:block th:each="file : ${files}">
-          <li class="list-group-item">
-            <div th:if="${file.fileType == 'image/jpeg' || file.fileType == 'image/png' || file.fileType == 'image/gif'}">
-              <img th:src="@{'/files/' + ${file.id}}" th:alt="${file.filename}" class="img-thumbnail" style="max-width: 200px;">
-            </div>
-          </li>
-        </th:block>
-      </ul>
-    </div>
-  </div>
-
-
-</body>
-</html>
-
-
-<!-- 이미지 확인 테스트 코드
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>스마트 채점봇</title>
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
-  <style>
-        .custom-container {
-            padding: 5rem 0;
-        }
-    </style>
+    .custom-container {
+      padding: 5rem 0;
+    }
+    .divider {
+      border-left: 1px solid #ccc;
+      margin: 30px;
+    }
+  </style>
+  <script>
+    function submitDateForm() {
+      document.getElementById("dateForm").submit();
+    }
+  </script>
 </head>
 <body>
 <div class="container-fluid bg-light custom-container">
@@ -66,23 +27,38 @@
     <h4 class="mb-5">채점 결과</h4>
   </div>
 </div>
-<div class="row">
-  <div class="col-md-12">
+<div class="row mt-5">
+  <div class="col-md-8 offset-md-2">
+    <form action="/result" method="get" id="dateForm">
+      <div class="form-group">
+        <label for="exam_date">시험 날짜 선택:</label>
+        <input type="date" class="form-control" id="exam_date" name="exam_date" th:value="${examDate}" required onchange="submitDateForm()">
+      </div>
+    </form>
+  </div>
+</div>
+<div class="row mt-5">
+  <div class="col-md-12 text-center">
+    <hr class="divider">
+    <form action="/download/excel" method="get">
+      <input type="hidden" name="download_date" th:value="${examDate}">
+      <button type="submit" class="btn btn-primary">엑셀 파일 다운로드</button>
+    </form>
+  </div>
+</div>
+<div class="row mt-5">
+  <div class="col-md-8 offset-md-2">
     <ul class="list-group">
       <li class="list-group-item active">채점 이미지 목록</li>
-      <li class="list-group-item">
-        <div>
-          <img src="https://cdn.travie.com/news/photo/first/201710/img_19975_1.jpg" alt="Sample Image" class="img-thumbnail" style="max-width: 200px;">
-        </div>
-      </li>
-      <li class="list-group-item">
-        <div>
-          <img src="https://via.placeholder.com/150" alt="Sample Image" class="img-thumbnail" style="max-width: 200px;">
-        </div>
-      </li>
+      <th:block th:each="file : ${files}">
+        <li class="list-group-item">
+          <div th:if="${file.fileType == 'image/jpeg' || file.fileType == 'image/png' || file.fileType == 'image/gif'}">
+            <img th:src="@{'/files/' + ${file.id}}" th:alt="${file.filename}" class="img-thumbnail" style="max-width: 200px;">
+          </div>
+        </li>
+      </th:block>
     </ul>
   </div>
 </div>
 </body>
 </html>
--->
