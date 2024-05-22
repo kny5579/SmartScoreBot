@@ -59,7 +59,6 @@ public class HttpController {
                 }
             });
         }
-        body.add("date", date); // 날짜 추가
 
         // HTTP 요청 생성
         HttpEntity<LinkedMultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
