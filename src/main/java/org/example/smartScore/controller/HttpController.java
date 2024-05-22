@@ -1,7 +1,9 @@
 package org.example.smartScore.controller;
 
-import org.example.smartScore.domain.ProcessedFileEntity;
-import org.example.smartScore.repository.ProcessedFileRepository;
+import org.example.smartScore.domain.ExcelFile;
+import org.example.smartScore.domain.ImageFile;
+import org.example.smartScore.repository.ExcelFileRepository;
+import org.example.smartScore.repository.ImageFileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.*;
@@ -23,7 +25,10 @@ import java.util.zip.ZipInputStream;
 public class HttpController {
 
     @Autowired
-    private ProcessedFileRepository processedFileRepository;
+    private ExcelFileRepository excelFileRepository;
+
+    @Autowired
+    private ImageFileRepository imageFileRepository;
 
     @PostMapping("/upload")
     public String uploadImages(@RequestParam("student_files") MultipartFile[] studentFiles,
@@ -33,7 +38,7 @@ public class HttpController {
         // Flask 서버의 URL
         String flaskUrl = "http://localhost:5000/upload";
 
-        // 날짜 문자열 Date 객체로 변환
+        // 날짜 문자열을 Date 객체로 변환
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         Date date = dateFormat.parse(dateString);
 
@@ -88,17 +93,22 @@ public class HttpController {
                 }
                 outputStream.close();
 
-                // 날짜, 파일 db에 저장
-                ProcessedFileEntity processedFile = new ProcessedFileEntity();
-                processedFile.setFilename(fileName);
-                processedFile.setData(outputStream.toByteArray());
-                processedFile.setDate(date);
+                // 파일의 확장자를 확인하여 각 엔티티에 저장
                 if (fileName.endsWith(".xlsx")) {
-                    processedFile.setFileType("excel");
+                    // Excel 파일 저장
+                    ExcelFile excelFile = new ExcelFile();
+                    excelFile.setFileName(fileName);
+                    excelFile.setData(outputStream.toByteArray());
+                    excelFile.setDate(date);
+                    excelFileRepository.save(excelFile);
                 } else {
-                    processedFile.setFileType("image");
+                    // Image 파일 저장
+                    ImageFile imageFile = new ImageFile();
+                    imageFile.setImageName(fileName);
+                    imageFile.setData(outputStream.toByteArray());
+                    imageFile.setDate(date);
+                    imageFileRepository.save(imageFile);
                 }
-                processedFileRepository.save(processedFile);
 
                 zipInputStream.closeEntry();
             }
