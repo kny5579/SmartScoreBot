@@ -115,6 +115,6 @@ public class HttpController {
             zipInputStream.close();
         }
 
-        return "redirect:/result?exam_date=" + dateFormat.format(date);
+        return "redirect:/result";
     }
 }
