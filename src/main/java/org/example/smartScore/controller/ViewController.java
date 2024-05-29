@@ -1,7 +1,9 @@
 package org.example.smartScore.controller;
 
-import org.example.smartScore.domain.ProcessedFileEntity;
-import org.example.smartScore.repository.ProcessedFileRepository;
+import org.example.smartScore.domain.ExcelFile;
+import org.example.smartScore.domain.ImageFile;
+import org.example.smartScore.repository.ExcelFileRepository;
+import org.example.smartScore.repository.ImageFileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
@@ -21,8 +23,12 @@ import java.util.Optional;
 
 @Controller
 public class ViewController {
+
     @Autowired
-    private ProcessedFileRepository processedFileRepository;
+    private ExcelFileRepository excelFileRepository;
+
+    @Autowired
+    private ImageFileRepository imageFileRepository;
 
     @GetMapping("/download/excel") //엑셀 다운로드
     public ResponseEntity<ByteArrayResource> downloadExcelFile(@RequestParam("download_date") String downloadDateString) throws ParseException {
@@ -30,17 +36,17 @@ public class ViewController {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         Date downloadDate = dateFormat.parse(downloadDateString);
 
-        Optional<ProcessedFileEntity> optionalFile = processedFileRepository.findByDateAndFileType(downloadDate, "excel");
+        Optional<ExcelFile> optionalFile = excelFileRepository.findByDateOne(downloadDate);
 
         if (!optionalFile.isPresent()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
-        ProcessedFileEntity file = optionalFile.get();
+        ExcelFile file = optionalFile.get();
         ByteArrayResource resource = new ByteArrayResource(file.getData());
 
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + file.getFilename())
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + file.getFileName())
                 .contentType(org.springframework.http.MediaType.APPLICATION_OCTET_STREAM)
                 .body(resource);
     }
@@ -52,8 +58,12 @@ public class ViewController {
         Date examDate = dateFormat.parse(examDateString);
 
         // 해당 날짜의 이미지 파일 목록 가져오기
-        List<ProcessedFileEntity> files = new ArrayList<>();
-        processedFileRepository.findByDateAndFileType(examDate, "image").ifPresent(files::add);
+        List<ImageFile> files = new ArrayList<>();
+        imageFileRepository.findByDate(examDate);
+
+        if (files.isEmpty()) {
+            return "error";
+        }
 
         // 모델에 파일 목록 추가
         model.addAttribute("files", files);
