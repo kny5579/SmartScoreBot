@@ -36,7 +36,7 @@ public class ViewController {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         Date downloadDate = dateFormat.parse(downloadDateString);
 
-        Optional<ExcelFile> optionalFile = excelFileRepository.findByDateOne(downloadDate);
+        Optional<ExcelFile> optionalFile = excelFileRepository.findByDate(downloadDate);
 
         if (!optionalFile.isPresent()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
