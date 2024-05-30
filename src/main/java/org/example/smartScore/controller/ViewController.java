@@ -58,8 +58,7 @@ public class ViewController {
         Date examDate = dateFormat.parse(examDateString);
 
         // 해당 날짜의 이미지 파일 목록 가져오기
-        List<ImageFile> files = new ArrayList<>();
-        imageFileRepository.findByDate(examDate);
+        List<ImageFile> files = imageFileRepository.findByDate(examDate);
 
         if (files.isEmpty()) {
             return "error";

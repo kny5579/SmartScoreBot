@@ -13,11 +13,6 @@
       margin: 30px;
     }
   </style>
-  <script>
-    function submitDateForm() {
-      document.getElementById("dateForm").submit();
-    }
-  </script>
 </head>
 <body>
 <div class="container-fluid bg-light custom-container">
@@ -31,20 +26,25 @@
     <form action="/result" method="get" id="dateForm">
       <div class="form-group">
         <label for="exam_date">시험 날짜 선택:</label>
-        <input type="date" class="form-control" id="exam_date" name="exam_date" required onchange="submitDateForm()">
+        <input type="date" class="form-control" id="exam_date" name="exam_date" required>
+        <button type="submit" class="btn btn-primary mt-2">결과 보기</button>
       </div>
     </form>
   </div>
 </div>
+
 <div class="row mt-5">
   <div class="col-md-12 text-center">
     <hr class="divider">
-    <form action="/download/excel" method="get">
-      <input type="hidden" name="download_date" th:value="${examDate}">
-      <button type="submit" class="btn btn-primary">엑셀 파일 다운로드</button>
-    </form>
+    <div th:if="${examDate != null}">
+      <form action="/download/excel" method="get">
+        <input type="hidden" name="download_date" th:value="${examDate}">
+        <button type="submit" class="btn btn-primary">엑셀 파일 다운로드</button>
+      </form>
+    </div>
   </div>
 </div>
+
 <div class="row mt-5">
   <div class="col-md-8 offset-md-2">
     <ul class="list-group">
