@@ -23,7 +23,7 @@
 </div>
 <div class="row mt-5">
   <div class="col-md-8 offset-md-2">
-    <form action="/result" method="get" id="dateForm" class="text-center">
+    <form action="/resultData" method="get" id="dateForm" class="text-center">
       <div class="form-group">
         <label for="exam_Date">시험 날짜 선택:</label>
         <input type="date" class="form-control" id="exam_Date" name="exam_Date" required>
@@ -33,7 +33,7 @@
   </div>
 </div>
 
-<div>
+<div th:if="${imageFiles != null}">
   <div class="row mt-5">
     <div class="col-md-12 text-center">
       <hr class="divider">
@@ -48,7 +48,7 @@
     <div class="col-md-8 offset-md-2">
       <ul class="list-group">
         <li class="list-group-item active">채점 이미지 목록</li>
-        <th:block th:each="file : ${files}">
+        <th:block th:each="file : ${imageFiles}">
           <li class="list-group-item">
             <img th:src="@{'/sample_data/' + ${examDate} + '/' + ${file.imageName}}" th:alt="${file.imageName}" class="img-thumbnail" style="max-width: 200px;">
           </li>

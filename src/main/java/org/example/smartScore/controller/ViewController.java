@@ -1,4 +1,4 @@
-package org.example.smartScore.controller;
+/*package org.example.smartScore.controller;
 
 import org.example.smartScore.domain.ExcelFile;
 import org.example.smartScore.domain.ImageFile;
@@ -76,4 +76,4 @@ public class ViewController {
         }
     }
 
-}
+}*/
