@@ -23,7 +23,7 @@
 </div>
 <div class="row mt-5">
   <div class="col-md-8 offset-md-2">
-    <form action="/result" method="get" id="dateForm" class="text-center">
+    <form th:action="@{/result}" method="get" class="text-center">
       <div class="form-group">
         <label for="exam_Date">시험 날짜 선택:</label>
         <input type="date" class="form-control" id="exam_Date" name="exam_Date" required>
