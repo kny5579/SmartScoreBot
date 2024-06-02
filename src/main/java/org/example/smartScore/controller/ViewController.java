@@ -52,13 +52,13 @@ public class ViewController {
     }
 
     @GetMapping("/result")
-    public String showResult(@RequestParam("exam_date") String examDateString, Model model) throws Exception {
-        System.out.println("Received exam_date: " + examDateString);
+    public String showResult(@RequestParam("exam_Date") String examDateString, Model model) throws Exception {
+        System.out.println("Received exam_Date: " + examDateString);
 
         try {
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
             Date examDate = dateFormat.parse(examDateString);
-            System.out.println("Parsed exam_date: " + examDate);
+            System.out.println("Parsed exam_Date: " + examDate);
 
             List<ImageFile> files = imageFileRepository.findByDate(examDate);
 
