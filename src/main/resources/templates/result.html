@@ -33,7 +33,7 @@
   </div>
 </div>
 
-<div th:if="${examDate != null}">
+<div>
   <div class="row mt-5">
     <div class="col-md-12 text-center">
       <hr class="divider">
@@ -50,9 +50,7 @@
         <li class="list-group-item active">채점 이미지 목록</li>
         <th:block th:each="file : ${files}">
           <li class="list-group-item">
-            <div th:if="${file.fileType == 'image/jpeg' || file.fileType == 'image/png' || file.fileType == 'image/gif'}">
-              <img th:src="@{'/sample_data/' + ${examDate} + '/' + ${file.filename}}" th:alt="${file.filename}" class="img-thumbnail" style="max-width: 200px;">
-            </div>
+            <img th:src="@{'/sample_data/' + ${examDate} + '/' + ${file.imageName}}" th:alt="${file.imageName}" class="img-thumbnail" style="max-width: 200px;">
           </li>
         </th:block>
       </ul>
