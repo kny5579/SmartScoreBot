@@ -51,23 +51,29 @@ public class ViewController {
                 .body(resource);
     }
 
-    @GetMapping("/result") //채점된 이미지 파일 저장
+    @GetMapping("/result")
     public String showResult(@RequestParam("exam_date") String examDateString, Model model) throws Exception {
-        // 날짜 문자열을 Date 객체로 변환
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        Date examDate = dateFormat.parse(examDateString);
+        System.out.println("Received exam_date: " + examDateString);
 
-        // 해당 날짜의 이미지 파일 목록 가져오기
-        List<ImageFile> files = imageFileRepository.findByDate(examDate);
+        try {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            Date examDate = dateFormat.parse(examDateString);
+            System.out.println("Parsed exam_date: " + examDate);
 
-        if (files.isEmpty()) {
+            List<ImageFile> files = imageFileRepository.findByDate(examDate);
+
+            if (files.isEmpty()) {
+                return "error";
+            }
+
+            model.addAttribute("files", files);
+            model.addAttribute("examDate", examDateString);
+
+            return "result";
+        } catch (ParseException e) {
+            e.printStackTrace();
             return "error";
         }
-
-        // 모델에 파일 목록 추가
-        model.addAttribute("files", files);
-        model.addAttribute("examDate", examDateString);
-
-        return "result";
     }
+
 }
