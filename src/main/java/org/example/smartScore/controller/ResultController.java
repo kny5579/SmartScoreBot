@@ -17,9 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -44,11 +42,11 @@ public class ResultController {
             Date date = dateFormat.parse(dateString);
 
             List<ImageFile> imageFiles = imageFileRepository.findByDate(date);
-            Optional<ExcelFile> excelFile = excelFileRepository.findByDate(date);
+            List<ExcelFile> excelFiles = excelFileRepository.findByDate(date);
 
             model.addAttribute("examDate", dateString);
             model.addAttribute("imageFiles", imageFiles);
-            model.addAttribute("excelFile", excelFile.orElse(null));
+            model.addAttribute("excelFiles", excelFiles);
         } catch (Exception e) {
             e.printStackTrace();
             // 예외 처리 로직 추가
@@ -62,28 +60,42 @@ public class ResultController {
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
             Date date = dateFormat.parse(dateString);
 
-            Optional<ExcelFile> excelFileOptional = excelFileRepository.findByDate(date);
-            if (excelFileOptional.isEmpty()) {
+            List<ExcelFile> excelFiles = excelFileRepository.findByDate(date);
+            if (excelFiles.isEmpty()) {
                 throw new RuntimeException("No files found for the specified date");
             }
-            ExcelFile excelFile = excelFileOptional.get();
 
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             ZipOutputStream zipOutputStream = new ZipOutputStream(byteArrayOutputStream);
 
-            ZipEntry zipEntry = new ZipEntry(excelFile.getFileName());
-            zipEntry.setSize(excelFile.getData().length);
-            zipOutputStream.putNextEntry(zipEntry);
-            zipOutputStream.write(excelFile.getData());
-            zipOutputStream.closeEntry();
+            Map<String, Integer> fileNameCountMap = new HashMap<>();
+            for (ExcelFile excelFile : excelFiles) {
+                String baseFileName = excelFile.getFileName();
+                String fileName = baseFileName;
+                int count = 1;
 
+                while (fileNameCountMap.containsKey(fileName)) {
+                    fileName = baseFileName.replaceFirst("(\\.[^.]+)$", "_" + count + "$1");
+                    count++;
+                }
+
+                fileNameCountMap.put(fileName, count);
+
+                ZipEntry zipEntry = new ZipEntry(fileName);
+                zipEntry.setSize(excelFile.getData().length);
+                zipOutputStream.putNextEntry(zipEntry);
+                zipOutputStream.write(excelFile.getData());
+                zipOutputStream.closeEntry();
+            }
+
+            zipOutputStream.flush(); // Ensure all data is written to the output stream
             zipOutputStream.close();
 
             ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
             InputStreamResource resource = new InputStreamResource(byteArrayInputStream);
 
             return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=excel_file.zip")
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=excel_files.zip")
                     .contentType(MediaType.APPLICATION_OCTET_STREAM)
                     .contentLength(byteArrayOutputStream.size())
                     .body(resource);
