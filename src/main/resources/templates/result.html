@@ -50,7 +50,7 @@
         <li class="list-group-item active">채점 이미지 목록</li>
         <th:block th:each="file : ${imageFiles}">
           <li class="list-group-item">
-            <img th:src="@{'/sample_data/' + ${examDate} + '/' + ${file.imageName}}" th:alt="${file.imageName}" class="img-thumbnail" style="max-width: 200px;">
+            <img th:src="@{'/images/' + ${file.id}}" th:alt="${file.imageName}" class="img-thumbnail" style="max-width: 200px;">
           </li>
         </th:block>
       </ul>
