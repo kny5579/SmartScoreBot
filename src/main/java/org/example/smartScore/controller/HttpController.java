@@ -36,7 +36,7 @@ public class HttpController {
                                @RequestParam("exam_date") String dateString) throws IOException, ParseException {
 
         // Flask 서버의 URL
-        String flaskUrl = "http://localhost:5000/upload";
+        String flaskUrl = "http://flaskserver:5000/upload";
 
         // 날짜 문자열을 Date 객체로 변환
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");

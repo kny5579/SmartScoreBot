@@ -1,0 +1,6 @@
+Flask==2.0.1
+werkzeug==2.0.1
+Pillow==9.5.0
+pandas==1.5.3
+markupsafe==2.0.1
+openpyxl==3.0.9

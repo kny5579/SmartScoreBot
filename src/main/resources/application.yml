@@ -14,7 +14,7 @@ spring:
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/smartscoredb
+    url: jdbc:mysql://mysqldb:3306/smartscoredb
     username: root
     password: '1234'
   thymeleaf:
