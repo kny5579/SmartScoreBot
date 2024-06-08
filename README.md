@@ -10,8 +10,7 @@ docker run -d --name flaskserver -p 5000:5000 --network smartscorebot_default fl
 ---
 # 도커 mysql 테이블 설정
 
-(venv) PS C:\Users\kny55\IdeaProjects\SmartScoreBot> docker exec -it mysqldb mysql -u ro
-ot -p
+docker exec -it mysqldb mysql -u root -p
 
 mysql> use smartscoredb
 
