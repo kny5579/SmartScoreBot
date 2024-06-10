@@ -31,5 +31,6 @@ test {
 }
 
 bootJar {
-    mainClassName = 'org.example.smartScore.SpringBootDeveloperApplication'
+//    mainClassName = 'org.example.smartScore.SpringBootDeveloperApplication'
+    mainClass.set('org.example.smartScore.SpringBootDeveloperApplication')
 }
