@@ -184,7 +184,7 @@ DB에 저장될 엔티티를 초반에는 하나의 엔티티에서 fileType을 
 
 - **최종적인 시스템 구상도입니다.**
 
-docker에 Spring Boot, Mysql, Flask 컨테이너가 각각 있기 때문에 모든 작업이 docker 컨테이너 내에서 실행됩니다.
+docker에 Spring Boot, Mysql, Flask 이미지가 각각 빌드되어 있기 때문에 모든 작업이 docker 컨테이너 내에서 실행됩니다.
 
 ![img_10.png](img_10.png)
 
