@@ -72,13 +72,12 @@ def upload_files():
         except OSError as e:
             print("Error: %s : %s" % (f, e.strerror))
 
-        # 받은 사진 저장
-        # for f in student_files + answer_files:
-        for f in student_files:
-            f.save(os.path.join(upload_folder, f.filename))
+    # 받은 사진 저장
+    for f in student_files + answer_files:
+        f.save(os.path.join(upload_folder, f.filename))
 
-    # 파일 처리 함수 호출 (여기에 파일 처리 로직을 작성)
-    process_result(upload_folder)
+    # 파일 처리 함수 호출
+    result_path = process_result(upload_folder)
 
     # ZIP 파일 생성
     zip_buffer = BytesIO()
@@ -93,35 +92,27 @@ def upload_files():
     return send_file(zip_buffer, mimetype='application/zip', as_attachment=True, download_name=f'processed_files_{formatted_date}.zip')
 
 
-
 def process_result(upload_folder):
+    # result_folder 생성
+    result_path = os.path.join(upload_folder, "result_file")
+    os.makedirs(result_path, exist_ok=True)
+
     # 샘플 엑셀 파일 생성
-    excel_file_path = os.path.join(upload_folder, 'sample.xlsx')
+    excel_file_path = os.path.join(result_path, 'sample.xlsx')
     df = pd.DataFrame({'Column1': [1, 2, 3], 'Column2': ['A', 'B', 'C']})
     df.to_excel(excel_file_path, index=False)
 
-    # 샘플 이미지 파일 생성
-    image_file_path = os.path.join(upload_folder, 'sample.jpg')
-    image_file_path = os.path.join(upload_folder, 'sample.jpg')
+    # 샘플 이미지 파일 생성 (이 부분은 주석 처리되어 있으므로 예시로 남겨 둠)
+    # image_file_path = os.path.join(result_path, 'sample.jpg')
+    # 이미지 파일 생성 로직 추가
 
+    for f in os.listdir(upload_folder):
+        img_path = os.path.join(upload_folder, f)
+        output_file_path = os.path.join(result_path, f)
+        if os.path.isfile(img_path):  # 파일인지 확인
+            get_output_img(img_path, output_file_path)
 
-    # result_folder 생성
-
-    upload_folder_abs_path = os.path.abspath(os.path.dirname(upload_folder))
-    result_path = os.path.join(upload_folder_abs_path, "result_file")
-    os.makedirs(upload_folder_abs_path +"/" + "result_file", exist_ok=True)
-
-
-
-    for f in files:
-
-        img_path = os.path.join(upload_folder_abs_path, f)
-        output_file_path = os.path.join(os.path.abspath(os.path.dirname(result_path)), f)
-        get_output_img(img_path, output_file_path)
-        # f.save(os.path.join(upload_folder, f.filename))
-        f.close()
-
-
+    return result_path
 
 
 
