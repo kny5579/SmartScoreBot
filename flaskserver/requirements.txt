@@ -4,3 +4,9 @@ Pillow==9.5.0
 pandas==1.5.3
 markupsafe==2.0.1
 openpyxl==3.0.9
+opencv-contrib-python
+pytesseract
+scikit-learn
+imutils
+matplotlib
+scikit-image
