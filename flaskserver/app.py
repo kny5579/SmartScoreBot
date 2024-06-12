@@ -61,71 +61,53 @@ def upload_files():
     # 날짜별 저장 경로
     upload_folder = f'./sample_data/{formatted_date}/'
 
-    # 디렉토리 없으면 생성
-    if not os.path.exists(upload_folder):
-        os.makedirs(upload_folder)
-
     # 기존의 사진 삭제
-    for f in os.listdir(upload_folder):
-        try:
-            os.remove(os.path.join(upload_folder, f))
-        except OSError as e:
-            print("Error: %s : %s" % (f, e.strerror))
+    if os.path.exists(upload_folder):
+        for f in os.listdir(upload_folder):
+            try:
+                os.remove(os.path.join(upload_folder, f))
+            except OSError as e:
+                print("Error: %s : %s" % (f, e.strerror))
+    else:
+        os.makedirs(upload_folder, exist_ok=True)
 
-        # 받은 사진 저장
-        # for f in student_files + answer_files:
-        for f in student_files:
-            f.save(os.path.join(upload_folder, f.filename))
+    # 받은 사진 저장
+    for f in student_files + answer_files:
+        f.save(os.path.join(upload_folder, f.filename))
 
     # 파일 처리 함수 호출 (여기에 파일 처리 로직을 작성)
-    process_result(upload_folder)
+    result_folder = process_result(upload_folder, formatted_date)  # 여기에 result_folder 변수를 반환하도록 수정
 
     # ZIP 파일 생성
     zip_buffer = BytesIO()
     with zipfile.ZipFile(zip_buffer, 'w') as zip_file:
-        for root, _, files in os.walk(result_path):
+        for root, _, files in os.walk(result_folder):  # result_folder의 파일들을 ZIP으로 압축
             for file in files:
                 file_path = os.path.join(root, file)
-                zip_file.write(file_path, os.path.relpath(file_path, result_path))
+                zip_file.write(file_path, os.path.relpath(file_path, result_folder))
 
     zip_buffer.seek(0)
 
     return send_file(zip_buffer, mimetype='application/zip', as_attachment=True, download_name=f'processed_files_{formatted_date}.zip')
 
+def process_result(upload_folder, formatted_date):
+    # result_folder 생성
+    result_folder = f'./result_data/{formatted_date}/'
+    os.makedirs(result_folder, exist_ok=True)
 
-
-def process_result(upload_folder):
     # 샘플 엑셀 파일 생성
-    excel_file_path = os.path.join(upload_folder, 'sample.xlsx')
+    excel_file_path = os.path.join(result_folder, 'sample.xlsx')
     df = pd.DataFrame({'Column1': [1, 2, 3], 'Column2': ['A', 'B', 'C']})
     df.to_excel(excel_file_path, index=False)
 
-    # 샘플 이미지 파일 생성
-    image_file_path = os.path.join(upload_folder, 'sample.jpg')
-    image_file_path = os.path.join(upload_folder, 'sample.jpg')
-
-
-    # result_folder 생성
-
-    upload_folder_abs_path = os.path.abspath(os.path.dirname(upload_folder))
-    result_path = os.path.join(upload_folder_abs_path, "result_file")
-    os.makedirs(upload_folder_abs_path +"/" + "result_file", exist_ok=True)
-
-
+    files = os.listdir(upload_folder)
 
     for f in files:
-
-        img_path = os.path.join(upload_folder_abs_path, f)
-        output_file_path = os.path.join(os.path.abspath(os.path.dirname(result_path)), f)
+        img_path = os.path.join(upload_folder, f)
+        output_file_path = os.path.join(result_folder, f)
         get_output_img(img_path, output_file_path)
-        # f.save(os.path.join(upload_folder, f.filename))
-        f.close()
 
-
-
-
-
-
+    return result_folder
 
 def get_output_img(img_path, output_file_path):
     COL = 3
@@ -134,15 +116,13 @@ def get_output_img(img_path, output_file_path):
     ANSWER_ROW = 3 # 답안 열 시작부분
     ANSWER_COL = 2 # 답안 행 시작 부분
 
-
     x_coords = [] # answer page에 찾은 contour들의 x좌표 리스트
-    y_coords = [] ## answer page에 찾은 contour들의 x좌표 리스트y좌표 리스트
+    y_coords = [] # answer page에 찾은 contour들의 x좌표 리스트y좌표 리스트
     BBcords = []  # answer page에 찾은 contour들의 x좌표 리스트 boundingbox 좌표[x,y,x+w, y+h]
     TbBBcords = []  # table page에 찾은 contour들의 x좌표 리스트 boundingbox 좌표[x,y,x+w, y+h]
     Tb_cords_x = []
     Tb_cords_y = []
     cont_Table = []
-
 
     try:
         org_image = cv2.imread(img_path, cv2.IMREAD_COLOR)
@@ -157,7 +137,6 @@ def get_output_img(img_path, output_file_path):
 
         # WeakLinemaskImg : INV, copyed_img
         WeakLineMaskImg_INV = draw_WeakLineMask(r_ceta_INV_INV)
-
 
         # Hard line masking (White->Black)
         HardLineMaskedIMG = draw_HardLineMask(r_ceta_INV)
@@ -181,14 +160,11 @@ def get_output_img(img_path, output_file_path):
 
         # thinMasking 이미지에 대한 findContour
 
-
         std_masked_img_cpy = WeakLineMaskImg_INV_INV.copy()
         #print(" ")
         #print("sMaskContur(masking_for_std)")
 
-
         std_masked_img_cpy_Draw_contour = sMaskContur(masking_for_std, std_masked_img_cpy)
-
 
         # r_ceta_INV_INV_copyINV //
         #print("r_ceta_INV_INV_copyINV")
@@ -206,7 +182,6 @@ def get_output_img(img_path, output_file_path):
 
         # 최종적으로 찾은 bounding box
         #cv2_imshow(std_masked_img_cpy)
-        output_file_path = os.path.join(output_file_path, "output_img.jpg")
         cv2.imwrite(output_file_path, std_masked_img_cpy_Draw_contour)
 
     except AttributeError as A:
@@ -918,4 +893,3 @@ def getAvgClassXY(y_coords,x_coords,COL,ROW):
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000)
-#
