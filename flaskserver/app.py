@@ -780,7 +780,7 @@ def Masking_src (Masked_INV, image_thresh_self):
 # answer file을 받아서 warpaffine을 했다고 가정
 # -----------------------------------------------------------------
 # def ListCluster(self):
-#	return tmp
+#   return tmp
 # -----------------------------------------------------------------
 
 
@@ -789,7 +789,7 @@ def Masking_src (Masked_INV, image_thresh_self):
 
 # y_coords,x_coords : 리스트([x/y좌표, index],...) / COL, ROW = 사용자지정전역변수
 # def getAvgClassXY(y_coords,x_coords,COL,ROW):
-# 	return x_class, y_class // 리스트([x/y좌표, index],...) -- 각 좌표들의 작은것부터 순서대로
+#    return x_class, y_class // 리스트([x/y좌표, index],...) -- 각 좌표들의 작은것부터 순서대로
 
 def getAvgClassXY(y_coords,x_coords,COL,ROW):
 
