@@ -6,8 +6,6 @@ from PIL import Image
 import pandas as pd
 from datetime import datetime, timezone
 
-# import the necessary packages for OCR
-
 import pytesseract
 from  sklearn.cluster  import  AgglomerativeClustering
 from  pytesseract import Output
@@ -16,7 +14,6 @@ import pytesseract
 from PIL import ImageEnhance, ImageFilter, Image
 pytesseract.pytesseract.tesseract_cmd = ( r'/usr/bin/tesseract' )
 
-# import  pandas  as  pd
 import numpy as np
 import pytesseract
 import argparse
@@ -26,7 +23,6 @@ import matplotlib.pyplot as plt
 from sklearn.datasets import make_blobs
 from skimage import data
 from skimage.filters import threshold_otsu, threshold_local
-# import os
 import glob
 
 
@@ -40,10 +36,6 @@ app = Flask(__name__)
 def home():
     if request.method == 'GET':
         return render_template('Results.html')
-#
-# @app.route('/')
-# def home():
-#     return '작심삼일 안녕!'
 
 
 @app.route('/upload', methods=['POST'])
@@ -163,6 +155,7 @@ def get_output_img(img_path, output_file_path):
         std_masked_img_cpy = WeakLineMaskImg_INV_INV.copy()
         #print(" ")
         #print("sMaskContur(masking_for_std)")
+        #print("sMaskContur(masking_for_std)")
 
         std_masked_img_cpy_Draw_contour = sMaskContur(masking_for_std, std_masked_img_cpy)
 
@@ -206,27 +199,7 @@ new_float_type = {
 
 
 def convert_to_float(image, preserve_range):
-    """Convert input image to float image with the appropriate range.
 
-    Parameters
-    ----------
-    image : ndarray
-      Input image.
-    preserve_range : bool
-      Determines if the range of the image should be kept or transformed
-      using img_as_float. Also see
-      https://scikit-image.org/docs/dev/user_guide/data_types.html
-
-    Notes
-    -----
-    * Input images with `float32` data type are not upcast.
-
-    Returns
-    -------
-    image : ndarray
-      Transformed version of the input.
-
-    """
     if image.dtype == np.float16:
         return image.astype(np.float32)
     if preserve_range:
