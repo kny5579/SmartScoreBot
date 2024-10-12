@@ -1,17 +1,4 @@
 spring:
-  mail:
-    host: #구글에서 정해준 값
-    port: #구글에서 정해준 값
-    username: #구글 워크스페이스 도메인
-    password: #구글 워크스페이스 비번
-    properties:
-      mail.smtp.auth: true
-        mail.smtp.starttls.enable: true
-  redis:
-    host: elatiCache #클러스터 주소
-    port:
-
-
   jpa:
     show-sql: true
     properties:
