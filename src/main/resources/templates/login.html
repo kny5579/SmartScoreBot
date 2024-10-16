@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
     <title>스마트 채점봇 로그인</title>
@@ -68,12 +68,13 @@
 </head>
 <body>
     <form action="/login" method="POST">
+        <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}" />
         <table>
             <tr>
                 <td><h2>로그인</h2></td>
             </tr>
             <tr>
-                <td><input type="text" name="ID" placeholder="ID"></td>
+                <td><input type="text" name="username" placeholder="Email"></td>
             </tr>
             <tr>
                 <td><input type="password" name="password" placeholder="Password"></td>
@@ -82,10 +83,13 @@
                 <td><input type="checkbox" name="remember"> 로그인 정보 저장</td>
             </tr>
             <tr>
-                <td><button type="submit" class="btn btn-primary">Sign in</button> </td>
+                <td><button type="submit" class="btn btn-primary">로그인</button> </td>
             </tr>
+            <div th:if="${error}">
+                <p style="color: red;" th:text="${exception}"></p>
+            </div>
             <tr>
-                <td class="signup"><a href="signup.html">회원가입</a></td>
+                <td><button type="button" class="btn btn-secondary mt-3" onclick="location.href='/signup'">회원가입</button></td>
             </tr>
         </table>
     </form>

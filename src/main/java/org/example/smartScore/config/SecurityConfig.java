@@ -2,7 +2,6 @@ package org.example.smartScore.config;
 
 import lombok.RequiredArgsConstructor;
 import org.example.smartScore.service.UserDetailService;
-import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -10,9 +9,9 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -21,6 +20,7 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     private final UserDetailService userService;
+    private final AuthenticationFailureHandler customFailureHandler;
 
     // 특정 HTTP 요청에 대한 웹 기반 보안 구성
     @Bean
@@ -32,7 +32,8 @@ public class SecurityConfig {
                 .and()
                 .formLogin() // 폼 기반 로그인 설정
                 .loginPage("/login")
-                .defaultSuccessUrl("/articles")
+                .defaultSuccessUrl("/")
+                .failureHandler(customFailureHandler) // 로그인 실패 핸들러
                 .and()
                 .logout() // 로그아웃 설정
                 .logoutSuccessUrl("/login")
