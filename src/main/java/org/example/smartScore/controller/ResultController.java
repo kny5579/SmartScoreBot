@@ -4,6 +4,7 @@ import org.example.smartScore.domain.ExcelFile;
 import org.example.smartScore.domain.ImageFile;
 import org.example.smartScore.repository.ExcelFileRepository;
 import org.example.smartScore.repository.ImageFileRepository;
+import org.example.smartScore.repository.StudentGradesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -29,6 +31,9 @@ public class ResultController {
 
     @Autowired
     private ImageFileRepository imageFileRepository;
+
+    @Autowired
+    private StudentGradesRepository studentGradesRepository;
 
     @GetMapping("/result")
     public String showResultPage() {
@@ -104,5 +109,18 @@ public class ResultController {
             // 예외 처리 로직 추가
         }
         return ResponseEntity.badRequest().build();
+    }
+
+    @GetMapping("/scoreDistribution")
+    @ResponseBody
+    public List<Integer> getScoreDistribution(@RequestParam("exam_Date") String dateString) {
+        try {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            Date date = dateFormat.parse(dateString);
+            return studentGradesRepository.findScoresByDate(date); // 날짜에 따른 점수 데이터 반환
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Collections.emptyList(); // 오류 발생 시 빈 리스트 반환
+        }
     }
 }

@@ -61,25 +61,21 @@
   <div class="row mt-5">
     <div class="col-md-8 offset-md-2">
       <div class="accordion" id="accordionExample">
+
+        <!-- 엑셀 파일 확인하기 -->
         <div class="card">
           <div class="card-header" id="headingExcel" data-toggle="collapse" data-target="#collapseExcel" aria-expanded="true" aria-controls="collapseExcel">
             <h6 class="mb-0 accordion-list-group-item">
               엑셀 파일 확인하기
             </h6>
           </div>
-
           <div id="collapseExcel" class="collapse" aria-labelledby="headingExcel">
             <div class="card-body">
-              <div class="row mt-1">
-                <div class="col-md-12 text-center">
-                  <form action="/download/excel" method="get">
-                    <input type="hidden" name="download_date" th:value="${examDate}">
-                    <button type="submit" class="btn btn-primary">엑셀 파일 다운로드</button>
-                  </form>
-                </div>
-              </div>
-              <div style="height: 20px;"></div>
-              <ul class="list-group">
+              <form action="/download/excel" method="get">
+                <input type="hidden" name="download_date" th:value="${examDate}">
+                <button type="submit" class="btn btn-primary">엑셀 파일 다운로드</button>
+              </form>
+              <ul class="list-group mt-3">
                 <th:block th:each="file : ${excelFiles}">
                   <li class="list-group-item">
                     <span th:text="${file.fileName}"></span>
@@ -90,6 +86,7 @@
           </div>
         </div>
 
+        <!-- 채점 이미지 확인하기 -->
         <div class="mt-3 card">
           <div class="card-header" id="headingImages" data-toggle="collapse" data-target="#collapseImages" aria-expanded="false" aria-controls="collapseImages">
             <h6 class="mb-0 accordion-list-group-item">
@@ -108,6 +105,21 @@
             </div>
           </div>
         </div>
+
+        <!-- 점수 분포 차트 확인하기 -->
+        <div class="mt-3 card">
+          <div class="card-header" id="headingChart" data-toggle="collapse" data-target="#collapseChart" aria-expanded="false" aria-controls="collapseChart">
+            <h6 class="mb-0 accordion-list-group-item">
+              점수 분포 차트 확인하기
+            </h6>
+          </div>
+          <div id="collapseChart" class="collapse" aria-labelledby="headingChart">
+            <div class="card-body">
+              <canvas id="scoreDistributionChart" width="400" height="200"></canvas>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
@@ -133,12 +145,59 @@
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
   $('#imageModal').on('show.bs.modal', function (event) {
     var button = $(event.relatedTarget);
     var imageUrl = button.data('src');
     var modal = $(this);
     modal.find('.modal-body img').attr('src', imageUrl);
+  });
+
+  document.addEventListener("DOMContentLoaded", function() {
+    var ctx = document.getElementById('scoreDistributionChart').getContext('2d');
+    var scoreDistributionChart;
+
+    document.getElementById("dateForm").addEventListener("submit", function(event) {
+      event.preventDefault();
+      var selectedDate = document.getElementById("exam_Date").value;
+
+      fetch(`/scoreDistribution?exam_Date=${selectedDate}`)
+              .then(response => response.json())
+              .then(data => {
+                var distribution = Array(10).fill(0);
+                data.forEach(score => {
+                  var index = Math.min(Math.floor(score / 10), 9);
+                  distribution[index]++;
+                });
+
+                if (scoreDistributionChart) {
+                  scoreDistributionChart.destroy();
+                }
+
+                scoreDistributionChart = new Chart(ctx, {
+                  type: 'bar',
+                  data: {
+                    labels: ['0-10', '11-20', '21-30', '31-40', '41-50', '51-60', '61-70', '71-80', '81-90', '91-100'],
+                    datasets: [{
+                      label: '점수 분포',
+                      data: distribution,
+                      backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                      borderColor: 'rgba(54, 162, 235, 1)',
+                      borderWidth: 1
+                    }]
+                  },
+                  options: {
+                    scales: {
+                      y: {
+                        beginAtZero: true
+                      }
+                    }
+                  }
+                });
+              })
+              .catch(error => console.error('Error loading score distribution:', error));
+    });
   });
 </script>
 </body>
