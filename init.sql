@@ -22,8 +22,9 @@
         password VARCHAR(255) NOT NULL
         );
 
-    CREATE TABLE IF NOT EXISTS StudentGrades (
+    CREATE TABLE IF NOT EXISTS student_grades (
         id BIGINT AUTO_INCREMENT PRIMARY KEY,
         score INT NOT NULL,
-        date DATE NOT NULL
+        date DATE NOT NULL,
+        student_id VARCHAR(255) NOT NULL
     )

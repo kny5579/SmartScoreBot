@@ -9,7 +9,7 @@ import java.math.BigInteger;
 import java.util.Date;
 
 @Entity
-@Table(name = "StudentGrades")
+@Table(name = "student_grades")
 @Getter
 @Setter
 @NoArgsConstructor

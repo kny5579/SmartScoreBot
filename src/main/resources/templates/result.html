@@ -146,28 +146,30 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script>
   $('#imageModal').on('show.bs.modal', function (event) {
-    var button = $(event.relatedTarget);
-    var imageUrl = button.data('src');
-    var modal = $(this);
+    const button = $(event.relatedTarget);
+    const imageUrl = button.data('src');
+    const modal = $(this);
     modal.find('.modal-body img').attr('src', imageUrl);
   });
 
   document.addEventListener("DOMContentLoaded", function() {
-    var ctx = document.getElementById('scoreDistributionChart').getContext('2d');
-    var scoreDistributionChart;
+    const ctx = document.getElementById('scoreDistributionChart').getContext('2d');
+    let scoreDistributionChart;
 
     document.getElementById("dateForm").addEventListener("submit", function(event) {
       event.preventDefault();
-      var selectedDate = document.getElementById("exam_Date").value;
+      const selectedDate = document.getElementById("exam_Date").value;
 
       fetch(`/scoreDistribution?exam_Date=${selectedDate}`)
               .then(response => response.json())
               .then(data => {
-                var distribution = Array(10).fill(0);
+                console.log("Received data for chart:", data); // 로그 추가
+                const distribution = Array(10).fill(0);
                 data.forEach(score => {
-                  var index = Math.min(Math.floor(score / 10), 9);
+                  const index = Math.min(Math.floor(score / 10), 9);
                   distribution[index]++;
                 });
 

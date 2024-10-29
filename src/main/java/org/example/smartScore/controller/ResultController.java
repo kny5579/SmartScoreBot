@@ -53,8 +53,7 @@ public class ResultController {
             model.addAttribute("imageFiles", imageFiles);
             model.addAttribute("excelFiles", excelFiles);
         } catch (Exception e) {
-            e.printStackTrace();
-            // 예외 처리 로직 추가
+            System.err.println("Error fetching result data for date " + dateString + ": " + e.getMessage());
         }
         return "result";
     }
@@ -93,7 +92,6 @@ public class ResultController {
                 zipOutputStream.closeEntry();
             }
 
-            zipOutputStream.flush(); // Ensure all data is written to the output stream
             zipOutputStream.close();
 
             ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
@@ -105,8 +103,7 @@ public class ResultController {
                     .contentLength(byteArrayOutputStream.size())
                     .body(resource);
         } catch (Exception e) {
-            e.printStackTrace();
-            // 예외 처리 로직 추가
+            System.err.println("Error downloading excel files for date " + dateString + ": " + e.getMessage());
         }
         return ResponseEntity.badRequest().build();
     }
@@ -117,10 +114,13 @@ public class ResultController {
         try {
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
             Date date = dateFormat.parse(dateString);
-            return studentGradesRepository.findScoresByDate(date); // 날짜에 따른 점수 데이터 반환
+
+            List<Integer> scores = studentGradesRepository.findScoresByDate(date);
+            System.out.println("Fetched scores for chart: " + scores);
+            return scores;
         } catch (Exception e) {
-            e.printStackTrace();
-            return Collections.emptyList(); // 오류 발생 시 빈 리스트 반환
+            System.err.println("Error fetching score distribution for date " + dateString + ": " + e.getMessage());
+            return Collections.emptyList();
         }
     }
 }
