@@ -40,6 +40,36 @@ public class ResultController {
         return "result";
     }
 
+    @GetMapping("/latestResultData")
+    public String getLatestResultData(Model model) {
+        try {
+            // 가장 최신 날짜로 데이터 조회
+            Optional<Date> latestDate = excelFileRepository.findLatestDate();
+
+            if (latestDate.isPresent()) {
+                Date date = latestDate.get();
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                String dateString = dateFormat.format(date);
+
+                // 해당 날짜의 이미지와 Excel 파일 데이터 조회
+                List<ImageFile> imageFiles = imageFileRepository.findByDate(date);
+                List<ExcelFile> excelFiles = excelFileRepository.findByDate(date);
+
+                model.addAttribute("examDate", dateString);
+                model.addAttribute("imageFiles", imageFiles);
+                model.addAttribute("excelFiles", excelFiles);
+            } else {
+                // 데이터가 없는 경우
+                model.addAttribute("error", "No grading data found.");
+            }
+        } catch (Exception e) {
+            System.err.println("Error fetching the latest result data: " + e.getMessage());
+            model.addAttribute("error", "Error fetching the latest result data.");
+        }
+        return "result";
+    }
+
+
     @GetMapping("/resultData")
     public String getResultData(@RequestParam("exam_Date") String dateString, Model model) {
         try {
