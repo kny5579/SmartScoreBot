@@ -44,6 +44,17 @@
     <h4 class="mb-5">채점 결과</h4>
   </div>
 </div>
+<div class="row mt-5">
+  <div class="col-md-8 offset-md-2">
+    <form action="/resultData" method="get" id="dateForm" class="text-center">
+      <div class="form-group">
+        <label for="exam_Date">시험 날짜 선택:</label>
+        <input type="date" class="form-control" id="exam_Date" name="exam_Date" required>
+        <button type="submit" class="btn btn-primary mt-2">결과 보기</button>
+      </div>
+    </form>
+  </div>
+</div>
 
 <div th:if="${imageFiles != null}">
   <hr class="divider">
