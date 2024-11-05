@@ -1,119 +1,138 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
-  <head>
-    <meta charset="UTF-8">
-    <title>스마트 채점봇 회원가입</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&display=swap">
-    <style>
-          body {
-              font-family: 'Noto Sans KR', sans-serif;
-              margin: 0;
-              padding: 0;
-              height: 100vh;
-              display: flex;
-              justify-content: center;
-              align-items: center;
-              background-color: #f0f0f0;
-          }
-          table {
-              width: 400px;
-              height: 400px;
-              font-size: 18px;
-              background-color: white;
-              padding: 30px;
-              box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
-              border-radius: 10px;
-              text-align: center;
-          }
-          td {
-              vertical-align: middle;
-              padding-top: 10px;
-          }
-          input[type="text"], input[type="password"] {
-              width: 360px;
-              height: 40px;
-              font-size: 18px;
-              border: 0;
-              border-radius: 20px;
-              outline: none;
-              padding-left: 15px;
-              margin-bottom: 15px;
-              background-color: rgb(233,233,233);
-              text-align: left;
-          }
-          .btn {
-              width: 360px;
-              height: 40px;
-              font-size: 18px;
-              border: 0;
-              border-radius: 20px;
-              outline: none;
-              background-color: rgb(164, 199, 255);
-              margin-bottom: 15px;
-          }
-          .btn:active {
-              background-color: rgb(61, 135, 255);
-          }
-          a {
-              font-size: 15px;
-              color: darkgray;
-              text-decoration: none;
-          }
-          #sendBtn {
-              border-radius: 10px;
-              background-color: rgb(235,235,235);
-              margin-bottom: 30px;
-          }
-          #sendBtn:active {
-              background-color: rgb(255,255,255);
-          }
-
-      </style>
-  </head>
-  <script>
-      // URL에 success 파라미터가 있으면 팝업을 띄움
-      window.onload = function() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const success = urlParams.get('success');
-        if (success === 'true') {
-          alert('회원가입이 완료되었습니다!');
-          location.href = "/login.html";
-        }
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>스마트 채점봇 회원가입</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap">
+  <style>
+      /* CSS 스타일 */
+      body {
+          font-family: 'Noto Sans KR', sans-serif;
+          margin: 0;
+          padding: 0;
+          height: 100vh;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          background-color: #f0f0f0;
       }
-    </script>
-    <body>
-<!--    <div class="container-fluid bg-light custom-container">-->
-<!--      <div class="text-center">-->
-<!--        <h1 class="mb-3 black-han-sans">스마트 채점봇</h1>-->
-<!--      </div>-->
-<!--    </div>-->
-      <form th:action="@{/user}" method="POST">
-        <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}" />
-        <table>
-          <tr>
-            <td><h2>회원가입</h2></td>
-          </tr>
-          <tr>
-            <td>이메일</td>
-          </tr>
-          <tr>
-            <td><input type="text" name="email" placeholder="단국대학교 계정 이메일을 입력해주세요." class="text"></td>
-          </tr>
-          <tr>
-            <td>비밀번호</td>
-          </tr>
-          <tr>
-            <td><input type="password" name="password" class="text"></td>
-          </tr>
-          <tr>
-            <td><button type="button" id="sendBtn" name="sendBtn" onclick="sendNumber()">이메일 인증</button></td>
-          </tr>
-          <tr>
-            <td><button type="submit" value="가입하기" class="btn btn-primary">가입하기</button></td>
-          </tr>
-        </table>
-      </form>
-    </body>
+      table {
+          width: 400px;
+          height: 600px;
+          font-size: 18px;
+          background-color: white;
+          padding: 30px;
+          box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
+          border-radius: 10px;
+          text-align: center;
+      }
+      td {
+          vertical-align: middle;
+          padding-top: 10px;
+      }
+      input[type="text"], input[type="password"] {
+          width: 360px;
+          height: 40px;
+          font-size: 18px;
+          border: 0;
+          border-radius: 20px;
+          outline: none;
+          padding-left: 15px;
+          margin-bottom: 15px;
+          background-color: rgb(233,233,233);
+          text-align: left;
+      }
+      .btn {
+          width: 360px;
+          height: 40px;
+          font-size: 18px;
+          border: 0;
+          border-radius: 20px;
+          outline: none;
+          background-color: rgb(164, 199, 255);
+          margin-bottom: 15px;
+      }
+      .btn:active {
+          background-color: rgb(61, 135, 255);
+      }
+  </style>
+</head>
+<body>
+
+<form action="/user" method="POST" id="signupForm">
+  <table>
+    <tr>
+      <td><h2>회원가입</h2></td>
+    </tr>
+    <tr>
+      <td>이메일</td>
+    </tr>
+    <tr>
+      <td><input type="text" name="email" placeholder="단국대학교 계정 이메일을 입력해주세요." required></td>
+    </tr>
+    <tr>
+      <td>비밀번호</td>
+    </tr>
+    <tr>
+      <td><input type="password" name="password" placeholder="비밀번호를 입력해주세요." required></td>
+    </tr>
+    <tr>
+      <td>
+        <!-- 이메일 인증 버튼 -->
+        <button type="button" class="btn" onclick="sendEmail(event)">이메일 인증</button>
+      </td>
+    </tr>
+    <tr>
+      <td>인증 번호</td>
+    </tr>
+    <tr>
+      <td><input type="text" id="verificationCode" name="verificationCode" placeholder="인증 번호를 입력해주세요." required></td>
+    </tr>
+    <tr>
+      <td>
+        <!-- 인증 확인 버튼 -->
+        <button type="button" class="btn" onclick="checkCode(event)">인증 확인</button>
+      </td>
+    </tr>
+    <tr>
+      <td><button type="submit" class="btn btn-primary">가입하기</button></td>
+    </tr>
+  </table>
+</form>
+
+<!-- JavaScript for handling form actions -->
+<script>
+  // 이메일 인증 전송
+  function sendEmail(event) {
+    event.preventDefault(); // 리다이렉트 방지
+    const email = document.querySelector('input[name="email"]').value;
+
+    // 이메일 인증을 위한 AJAX 호출
+    fetch('/mailSend', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: new URLSearchParams({mail: email})
+    }).then(response => response.text())
+      .then(data => alert("인증 이메일이 전송되었습니다."))
+      .catch(error => alert("이메일 전송 실패. 다시 시도해주세요."));
+  }
+
+  // 인증 코드 확인
+  function checkCode(event) {
+    event.preventDefault(); // 리다이렉트 방지
+    const code = document.getElementById("verificationCode").value;
+
+    // 인증 코드 확인을 위한 AJAX 호출
+    fetch(`/mailCheck?userNumber=${code}`, {
+      method: 'GET',
+    }).then(response => response.text())
+      .then(data => alert(data.includes("완료") ? "인증 완료!" : "인증 실패. 다시 시도해주세요."))
+      .catch(error => alert("인증 실패. 다시 시도해주세요."));
+  }
+</script>
+
+</body>
 </html>
