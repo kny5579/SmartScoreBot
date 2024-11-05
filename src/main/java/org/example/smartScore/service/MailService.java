@@ -12,15 +12,14 @@ import org.springframework.stereotype.Service;
 public class MailService {
 
     private final JavaMailSender javaMailSender;
-    private static final String senderEmail= "100scorebot@gmail.com";
+    private static final String senderEmail= "wisejohn950330@gmail.com";
     private static int number;
 
-    // 랜덤으로 숫자 생성
-    public static void createNumber() {
-        number = (int)(Math.random() * (90000)) + 100000; //(int) Math.random() * (최댓값-최소값+1) + 최소값
+    public static void createNumber(){
+        number = (int)(Math.random() * (90000)) + 100000;// (int) Math.random() * (최댓값-최소값+1) + 최소값
     }
 
-    public MimeMessage CreateMail(String mail) {
+    public MimeMessage CreateMail(String mail){
         createNumber();
         MimeMessage message = javaMailSender.createMimeMessage();
 
@@ -40,7 +39,7 @@ public class MailService {
         return message;
     }
 
-    public int sendMail(String mail) {
+    public int sendMail(String mail){
         MimeMessage message = CreateMail(mail);
         javaMailSender.send(message);
 
