@@ -23,14 +23,18 @@ public class ImageFile {
     private String imageName;
 
     @Column(nullable = false)
-    private Date date;
+    private Date examDate; // 시험 날짜
+
+    @Column(nullable = false)
+    private Date submitDate; // 제출 날짜
 
     @Lob //db에 큰 값을 넣기 위함
     private byte[] data;
 
     @Builder
-    public ImageFile(String imageName, Date date) {
+    public ImageFile(String imageName, Date examDate, Date submitDate) {
         this.imageName = imageName;
-        this.date = date;
+        this.examDate = examDate;
+        this.submitDate = submitDate;
     }
 }

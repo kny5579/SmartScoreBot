@@ -22,14 +22,18 @@ public class ExcelFile {
     private String fileName;
 
     @Column(nullable = false)
-    private Date date;
+    private Date examDate; // 시험 날짜
+
+    @Column(nullable = false)
+    private Date submitDate; // 제출 날짜
 
     @Lob //db에 큰 값을 넣기 위함
     private byte[] data;
 
     @Builder
-    public ExcelFile(String fileName, Date date) {
+    public ExcelFile(String fileName, Date examDate, Date submitDate) {
         this.fileName = fileName;
-        this.date = date;
+        this.examDate = examDate;
+        this.submitDate = submitDate;
     }
 }
