@@ -53,6 +53,10 @@
           background-color: rgb(164, 199, 255);
           margin-bottom: 15px;
       }
+      .btn:disabled {
+          background-color: rgb(200, 200, 200); /* 비활성화 시 연한 회색 */
+          cursor: not-allowed;
+      }
       .btn:active {
           background-color: rgb(61, 135, 255);
       }
@@ -69,7 +73,7 @@
       <td>이메일</td>
     </tr>
     <tr>
-      <td><input type="text" id="email" name="email" placeholder="단국대학교 계정 이메일을 입력해주세요." required></td>
+      <td><input type="text" id="email" name="email" placeholder="단국대학교 계정 이메일을 입력해주세요." required oninput="validateEmail()"></td>
     </tr>
     <tr>
       <td>비밀번호</td>
@@ -80,7 +84,7 @@
     <tr>
       <td>
         <!-- 이메일 인증 버튼 -->
-        <button type="button" class="btn" onclick="sendNumber()">이메일 인증</button>
+        <button type="button" class="btn" onclick="sendNumber()" id="sendCodeBtn" disabled>이메일 인증</button>
       </td>
     </tr>
     <tr id="verificationField" style="display:none;">
@@ -96,7 +100,7 @@
       </td>
     </tr>
     <tr>
-      <td><button type="submit" class="btn btn-primary">가입하기</button></td>
+      <td><button type="submit" class="btn btn-primary" id="signupButton" disabled>가입하기</button></td>
     </tr>
   </table>
 </form>
@@ -104,6 +108,27 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 <script type="text/javascript">
     let generatedNumber = ""; // 생성된 번호를 저장할 변수
+    let alertShown = false; // 경고창이 한 번만 뜨도록 제어하는 변수
+
+    // 이메일 도메인 확인
+    function validateEmail() {
+        const email = document.getElementById('email').value;
+        const regex = /^[a-zA-Z0-9._%+-]+@dankook\.ac\.kr$/;
+        const sendCodeBtn = document.getElementById('sendCodeBtn');
+        const signupButton = document.getElementById('signupButton');
+
+        if (regex.test(email)) {
+            sendCodeBtn.disabled = false;
+            alertShown = false;
+        } else {
+            sendCodeBtn.disabled = true;
+            signupButton.disabled = true;
+            if (!alertShown) {
+                alert("이메일은 반드시 @dankook.ac.kr 도메인이어야 합니다.");
+                alertShown = true;
+            }
+        }
+    }
 
     function sendNumber(){
         $.ajax({
@@ -127,10 +152,11 @@
     function confirmNumber(){
         let enteredCode = $("#verificationCode").val();
 
-        if(enteredCode == generatedNumber){ // ==로 비교
+        if(enteredCode === generatedNumber){ // 인증 번호가 일치하는 경우
             alert("인증되었습니다.");
-        }else{
-            alert("입력한 번호: " + enteredCode + "\n생성된 번호: " + generatedNumber);
+            $("#signupButton").prop("disabled", false); // 회원가입 버튼 활성화
+        } else {
+            alert("인증번호가 일치하지 않습니다. 다시 시도해주세요.");
         }
     }
 
@@ -141,7 +167,7 @@
           alert('회원가입이 완료되었습니다!');
           location.href = "/login.html";
         }
-      }
+    }
 </script>
 
 </body>

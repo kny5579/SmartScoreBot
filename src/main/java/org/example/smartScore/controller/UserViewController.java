@@ -22,6 +22,9 @@ public class UserViewController {
         return "login";
     }
 
+    @GetMapping("/resultList")
+    public String resultList() { return "resultList"; }
+
     @GetMapping("/signup")
     public String signup(){
         return "signup";
