@@ -32,10 +32,10 @@
     }
     .sort-dropdown {
       width: 150px;
-      margin-right: 10px; /* 드롭다운과 버튼 사이 간격 */
+      margin-right: 10px;
     }
     .search-btn {
-      margin-left: 10px; /* 버튼과 드롭다운 사이 간격 */
+      margin-left: 10px;
     }
     table {
       width: 100%;
@@ -93,11 +93,9 @@
   <div class="header">
     <h2> </h2>
     <div class="sort-dropdown-container" style="width: 100%; display: flex; justify-content: space-between; align-items: center;">
-      <!-- 날짜별로 찾기 버튼 왼쪽에 배치 -->
       <div class="search-btn">
         <a href="/resultDate" class="btn btn-warning">시험 날짜로 검색하기</a>
       </div>
-      <!-- 드롭다운 메뉴 오른쪽에 배치 -->
       <div class="form-group sort-dropdown">
         <select class="form-control" id="sortCriteria" onchange="handleSortChange()">
           <option value="grading_date">채점 날짜</option>
@@ -116,9 +114,6 @@
       <th>기록 삭제</th>
     </tr>
     </thead>
-    <tbody id="recordTableBody">
-    <!-- 채점 기록이 여기에 표시됩니다 -->
-    </tbody>
   </table>
 </div>
 
