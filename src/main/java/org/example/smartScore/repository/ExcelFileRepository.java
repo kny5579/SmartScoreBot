@@ -8,5 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ExcelFileRepository extends JpaRepository<ExcelFile, Long> {
-    List<ExcelFile> findByDate(Date date);
+
+    List<ExcelFile> findBySubmitDate(Date submitDate);
+    List<ExcelFile> findByExamDate(Date examDate);
 }

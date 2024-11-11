@@ -22,10 +22,10 @@ public class ImageFile {
     @Column(nullable = false)
     private String imageName;
 
-    @Column(nullable = false)
+    @Column(name = "exam_date")
     private Date examDate; // 시험 날짜
 
-    @Column(nullable = false)
+    @Column(name = "submit_date")
     private Date submitDate; // 제출 날짜
 
     @Lob //db에 큰 값을 넣기 위함

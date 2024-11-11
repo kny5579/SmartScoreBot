@@ -46,11 +46,9 @@ def upload_files():
 
     # 날짜 받기
     exam_date = request.form.get("exam_date")
-    submit_date = request.form.get("submit_date")  # 추가된 부분
 
     # 날짜 포맷팅
     formatted_exam_date = datetime.fromtimestamp(int(exam_date) / 1000, timezone.utc).strftime("%Y-%m-%d")
-    formatted_submit_date = datetime.fromtimestamp(int(submit_date) / 1000, timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
 
     # 날짜별 저장 경로
     upload_folder = f'./sample_data/{formatted_exam_date}/'

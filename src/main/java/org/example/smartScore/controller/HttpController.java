@@ -38,9 +38,12 @@ public class HttpController {
         // Flask 서버의 URL
         String flaskUrl = "http://flaskserver:5000/upload";
 
+
         // 날짜 문자열을 Date 객체로 변환
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         Date examDate = dateFormat.parse(dateString);
+        System.out.println("Exam Date: " + examDate);
+
         Date submitDate = new Date(); // 현재 날짜를 제출 날짜로 설정
 
         // 헤더 타입 설정
@@ -66,7 +69,6 @@ public class HttpController {
             });
         }
         body.add("exam_date", examDate); // 시험 날짜 추가
-        body.add("submit_date",submitDate); //제출 날짜 추가
 
         // HTTP 요청 생성
         HttpEntity<LinkedMultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);

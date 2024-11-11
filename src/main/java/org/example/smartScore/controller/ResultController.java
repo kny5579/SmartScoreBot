@@ -46,8 +46,8 @@ public class ResultController {
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
             Date date = dateFormat.parse(dateString);
 
-            List<ImageFile> imageFiles = imageFileRepository.findByDate(date);
-            List<ExcelFile> excelFiles = excelFileRepository.findByDate(date);
+            List<ImageFile> imageFiles = imageFileRepository.findByExamDate(date);
+            List<ExcelFile> excelFiles = excelFileRepository.findByExamDate(date);
 
             model.addAttribute("examDate", dateString);
             model.addAttribute("imageFiles", imageFiles);
@@ -64,7 +64,7 @@ public class ResultController {
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
             Date date = dateFormat.parse(dateString);
 
-            List<ExcelFile> excelFiles = excelFileRepository.findByDate(date);
+            List<ExcelFile> excelFiles = excelFileRepository.findByExamDate(date);
             if (excelFiles.isEmpty()) {
                 throw new RuntimeException("No files found for the specified date");
             }
@@ -115,7 +115,7 @@ public class ResultController {
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
             Date date = dateFormat.parse(dateString);
 
-            List<Integer> scores = studentGradesRepository.findScoresByDate(date);
+            List<Integer> scores = studentGradesRepository.findScoresByExamDate(date);
             System.out.println("Fetched scores for chart: " + scores);
             return scores;
         } catch (Exception e) {

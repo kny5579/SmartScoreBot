@@ -10,6 +10,6 @@ import java.util.List;
 
 public interface StudentGradesRepository extends JpaRepository<StudentGrades, Long> {
 
-    @Query("SELECT s.score FROM StudentGrades s WHERE s.date = :date")
-    List<Integer> findScoresByDate(@Param("date") Date date);
+    @Query("SELECT s.score FROM StudentGrades s WHERE s.examDate = :examDate")
+    List<Integer> findScoresByExamDate(@Param("examDate") Date examDate);
 }
