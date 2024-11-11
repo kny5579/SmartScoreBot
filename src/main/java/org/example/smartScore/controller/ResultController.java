@@ -30,9 +30,9 @@ public class ResultController {
     @Autowired
     private ImageFileRepository imageFileRepository;
 
-    @GetMapping("/result")
-    public String showResultPage() {
-        return "result";
+    @GetMapping("/resultDate")
+    public String showResultDatePage() {
+        return "resultDate";
     }
 
     @GetMapping("/resultData")
