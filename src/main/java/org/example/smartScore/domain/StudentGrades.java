@@ -25,7 +25,7 @@ public class StudentGrades {
     @Column(nullable = false)
     private int score; // 점수
 
-    @Column(nullable = false)
+    @Column(name = "exam_date")
     private Date examDate;
 
 }

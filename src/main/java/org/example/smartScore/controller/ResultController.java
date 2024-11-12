@@ -35,8 +35,31 @@ public class ResultController {
     @Autowired
     private StudentGradesRepository studentGradesRepository;
 
+    @GetMapping("/resultDate")
+    public String showResultDatePage() {
+        return "resultDate";
+    }
+
     @GetMapping("/result")
-    public String showResultPage() {
+    public String getResultData(Model model) {
+        try {
+            ExcelFile latestExcelFile = excelFileRepository.findLatestSubmitDateExcelFile();
+
+            if (latestExcelFile != null) {
+                Date date = latestExcelFile.getExamDate();
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                String dateString = dateFormat.format(date);
+
+                List<ImageFile> imageFiles = imageFileRepository.findByExamDate(date);
+                List<ExcelFile> excelFiles = excelFileRepository.findByExamDate(date);
+
+                model.addAttribute("examDate", dateString);
+                model.addAttribute("imageFiles", imageFiles);
+                model.addAttribute("excelFiles", excelFiles);
+            }
+        } catch (Exception e) {
+            System.err.println("Error fetching result data: " + e.getMessage());
+        }
         return "result";
     }
 
@@ -55,7 +78,7 @@ public class ResultController {
         } catch (Exception e) {
             System.err.println("Error fetching result data for date " + dateString + ": " + e.getMessage());
         }
-        return "result";
+        return "resultDate";
     }
 
     @GetMapping("/download/excel")
