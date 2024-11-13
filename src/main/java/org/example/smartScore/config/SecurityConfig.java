@@ -30,7 +30,8 @@ public class SecurityConfig {
         return http
                 .authorizeRequests() // 인증, 인가 설정
                 .requestMatchers("/images/**").permitAll()
-                .requestMatchers("/", "/index", "/login", "/signup", "/user", "/mail/**", "/forgot-password").permitAll()
+                .requestMatchers("/", "/index", "/login", "/signup", "/user", "/mail/**", "/forgot-password",
+                        "/password-reset-mail", "/verify-password-reset-code").permitAll() //비번 경로 추가
                 .anyRequest().authenticated()
                 .and()
                 .formLogin() // 폼 기반 로그인 설정
