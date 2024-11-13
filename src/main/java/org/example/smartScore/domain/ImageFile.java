@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigInteger;
+import java.sql.Timestamp;
 import java.util.Date;
 
 @Entity
@@ -26,13 +27,13 @@ public class ImageFile {
     private Date examDate; // 시험 날짜
 
     @Column(name = "submit_date")
-    private Date submitDate; // 제출 날짜
+    private Timestamp submitDate; // 제출 날짜
 
     @Lob //db에 큰 값을 넣기 위함
     private byte[] data;
 
     @Builder
-    public ImageFile(String imageName, Date examDate, Date submitDate) {
+    public ImageFile(String imageName, Date examDate, Timestamp submitDate) {
         this.imageName = imageName;
         this.examDate = examDate;
         this.submitDate = submitDate;

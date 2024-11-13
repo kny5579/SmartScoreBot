@@ -15,6 +15,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
+import java.sql.Timestamp; // Timestamp import 추가
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -38,13 +39,12 @@ public class HttpController {
         // Flask 서버의 URL
         String flaskUrl = "http://flaskserver:5000/upload";
 
-
         // 날짜 문자열을 Date 객체로 변환
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         Date examDate = dateFormat.parse(dateString);
         System.out.println("Exam Date: " + examDate);
 
-        Date submitDate = new Date(); // 현재 날짜를 제출 날짜로 설정
+        Timestamp submitDate = new Timestamp(System.currentTimeMillis()); // 현재 시간을 포함하는 Timestamp 생성
 
         // 헤더 타입 설정
         HttpHeaders headers = new HttpHeaders();

@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS imagefile (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     image_name VARCHAR(255) NOT NULL,
     exam_date DATE,
-    submit_date DATE,
+    submit_date TIMESTAMP,
     data LONGBLOB
 );
 
@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS excel_file (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     file_name VARCHAR(255) NOT NULL,
     exam_date DATE,
-    submit_date DATE,
+    submit_date TIMESTAMP,
     data LONGBLOB
 );
 

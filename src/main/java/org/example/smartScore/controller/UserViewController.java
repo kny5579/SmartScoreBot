@@ -8,10 +8,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 public class UserViewController {
 
-//    @GetMapping("/index")
-//    public String index(){
-//        return "index";
-//    }
+    @GetMapping("/index")
+    public String index(){
+        return "index";
+    }
 
     @GetMapping("/login")
     public String login(@RequestParam(value = "error", required = false)String error,

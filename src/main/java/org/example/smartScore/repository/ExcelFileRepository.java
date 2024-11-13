@@ -12,6 +12,5 @@ public interface ExcelFileRepository extends JpaRepository<ExcelFile, Long> {
 
     @Query("SELECT e FROM ExcelFile e WHERE e.submitDate = (SELECT MAX(e2.submitDate) FROM ExcelFile e2)")
     ExcelFile findLatestSubmitDateExcelFile();
-    List<ExcelFile> findBySubmitDate(Date submitDate);
     List<ExcelFile> findByExamDate(Date examDate);
 }
