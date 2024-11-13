@@ -14,6 +14,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -23,6 +24,8 @@ public class SecurityConfig {
 
     private final UserDetailService userService;
     private final AuthenticationFailureHandler customFailureHandler;
+    private final AuthenticationSuccessHandler loginSuccessHandler; // LoginSuccessHandler 주입
+
 
     // 특정 HTTP 요청에 대한 웹 기반 보안 구성
     @Bean
@@ -35,6 +38,7 @@ public class SecurityConfig {
                 .and()
                 .formLogin() // 폼 기반 로그인 설정
                 .loginPage("/login")
+                .successHandler(loginSuccessHandler) // 로그인 성공 핸들러 설정
                 .defaultSuccessUrl("/", true)
                 .failureHandler(customFailureHandler) // 로그인 실패 핸들러
                 .and()

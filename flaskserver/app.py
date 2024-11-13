@@ -45,13 +45,13 @@ def upload_files():
     answer_files = request.files.getlist("answer_files")
 
     # 날짜 받기
-    date = request.form.get("date")
+    exam_date = request.form.get("exam_date")
 
     # 날짜 포맷팅
-    formatted_date = datetime.fromtimestamp(int(date) / 1000, timezone.utc).strftime("%Y-%m-%d")
+    formatted_exam_date = datetime.fromtimestamp(int(exam_date) / 1000, timezone.utc).strftime("%Y-%m-%d")
 
     # 날짜별 저장 경로
-    upload_folder = f'./sample_data/{formatted_date}/'
+    upload_folder = f'./sample_data/{formatted_exam_date}/'
 
     # 기존의 사진 삭제
     if os.path.exists(upload_folder):
@@ -68,7 +68,7 @@ def upload_files():
         f.save(os.path.join(upload_folder, f.filename))
 
     # 파일 처리 함수 호출 (여기에 파일 처리 로직을 작성)
-    result_folder = process_result(upload_folder, formatted_date)  # 여기에 result_folder 변수를 반환하도록 수정
+    result_folder = process_result(upload_folder, formatted_exam_date)  # 여기에 result_folder 변수를 반환하도록 수정
 
     # ZIP 파일 생성
     zip_buffer = BytesIO()
@@ -80,7 +80,7 @@ def upload_files():
 
     zip_buffer.seek(0)
 
-    return send_file(zip_buffer, mimetype='application/zip', as_attachment=True, download_name=f'processed_files_{formatted_date}.zip')
+    return send_file(zip_buffer, mimetype='application/zip', as_attachment=True, download_name=f'processed_files_{formatted_exam_date}.zip')
 
 def process_result(upload_folder, formatted_date):
     # result_folder 생성

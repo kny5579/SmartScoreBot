@@ -4,6 +4,7 @@ import org.example.smartScore.domain.ExcelFile;
 import org.example.smartScore.domain.ImageFile;
 import org.example.smartScore.repository.ExcelFileRepository;
 import org.example.smartScore.repository.ImageFileRepository;
+import org.example.smartScore.repository.StudentGradesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -30,9 +32,35 @@ public class ResultController {
     @Autowired
     private ImageFileRepository imageFileRepository;
 
+    @Autowired
+    private StudentGradesRepository studentGradesRepository;
+
     @GetMapping("/resultDate")
     public String showResultDatePage() {
         return "resultDate";
+    }
+
+    @GetMapping("/result")
+    public String getResultData(Model model) {
+        try {
+            ExcelFile latestExcelFile = excelFileRepository.findLatestSubmitDateExcelFile();
+
+            if (latestExcelFile != null) {
+                Date date = latestExcelFile.getExamDate();
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                String dateString = dateFormat.format(date);
+
+                List<ImageFile> imageFiles = imageFileRepository.findByExamDate(date);
+                List<ExcelFile> excelFiles = excelFileRepository.findByExamDate(date);
+
+                model.addAttribute("examDate", dateString);
+                model.addAttribute("imageFiles", imageFiles);
+                model.addAttribute("excelFiles", excelFiles);
+            }
+        } catch (Exception e) {
+            System.err.println("Error fetching result data: " + e.getMessage());
+        }
+        return "result";
     }
 
     @GetMapping("/resultData")
@@ -41,17 +69,16 @@ public class ResultController {
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
             Date date = dateFormat.parse(dateString);
 
-            List<ImageFile> imageFiles = imageFileRepository.findByDate(date);
-            List<ExcelFile> excelFiles = excelFileRepository.findByDate(date);
+            List<ImageFile> imageFiles = imageFileRepository.findByExamDate(date);
+            List<ExcelFile> excelFiles = excelFileRepository.findByExamDate(date);
 
             model.addAttribute("examDate", dateString);
             model.addAttribute("imageFiles", imageFiles);
             model.addAttribute("excelFiles", excelFiles);
         } catch (Exception e) {
-            e.printStackTrace();
-            // 예외 처리 로직 추가
+            System.err.println("Error fetching result data for date " + dateString + ": " + e.getMessage());
         }
-        return "result";
+        return "resultDate";
     }
 
     @GetMapping("/download/excel")
@@ -60,7 +87,7 @@ public class ResultController {
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
             Date date = dateFormat.parse(dateString);
 
-            List<ExcelFile> excelFiles = excelFileRepository.findByDate(date);
+            List<ExcelFile> excelFiles = excelFileRepository.findByExamDate(date);
             if (excelFiles.isEmpty()) {
                 throw new RuntimeException("No files found for the specified date");
             }
@@ -88,7 +115,6 @@ public class ResultController {
                 zipOutputStream.closeEntry();
             }
 
-            zipOutputStream.flush(); // Ensure all data is written to the output stream
             zipOutputStream.close();
 
             ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
@@ -100,9 +126,24 @@ public class ResultController {
                     .contentLength(byteArrayOutputStream.size())
                     .body(resource);
         } catch (Exception e) {
-            e.printStackTrace();
-            // 예외 처리 로직 추가
+            System.err.println("Error downloading excel files for date " + dateString + ": " + e.getMessage());
         }
         return ResponseEntity.badRequest().build();
+    }
+
+    @GetMapping("/scoreDistribution")
+    @ResponseBody
+    public List<Integer> getScoreDistribution(@RequestParam("exam_Date") String dateString) {
+        try {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            Date date = dateFormat.parse(dateString);
+
+            List<Integer> scores = studentGradesRepository.findScoresByExamDate(date);
+            System.out.println("Fetched scores for chart: " + scores);
+            return scores;
+        } catch (Exception e) {
+            System.err.println("Error fetching score distribution for date " + dateString + ": " + e.getMessage());
+            return Collections.emptyList();
+        }
     }
 }

@@ -38,9 +38,13 @@ public class HttpController {
         // Flask 서버의 URL
         String flaskUrl = "http://flaskserver:5000/upload";
 
+
         // 날짜 문자열을 Date 객체로 변환
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        Date date = dateFormat.parse(dateString);
+        Date examDate = dateFormat.parse(dateString);
+        System.out.println("Exam Date: " + examDate);
+
+        Date submitDate = new Date(); // 현재 날짜를 제출 날짜로 설정
 
         // 헤더 타입 설정
         HttpHeaders headers = new HttpHeaders();
@@ -64,7 +68,7 @@ public class HttpController {
                 }
             });
         }
-        body.add("date", date); // 날짜 추가
+        body.add("exam_date", examDate); // 시험 날짜 추가
 
         // HTTP 요청 생성
         HttpEntity<LinkedMultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
@@ -99,14 +103,16 @@ public class HttpController {
                     ExcelFile excelFile = new ExcelFile();
                     excelFile.setFileName(fileName);
                     excelFile.setData(outputStream.toByteArray());
-                    excelFile.setDate(date);
+                    excelFile.setExamDate(examDate); // 시험 날짜 설정
+                    excelFile.setSubmitDate(submitDate); // 제출 날짜 설정
                     excelFileRepository.save(excelFile);
                 } else {
                     // Image 파일 저장
                     ImageFile imageFile = new ImageFile();
                     imageFile.setImageName(fileName);
                     imageFile.setData(outputStream.toByteArray());
-                    imageFile.setDate(date);
+                    imageFile.setExamDate(examDate); // 시험 날짜 설정
+                    imageFile.setSubmitDate(submitDate); // 제출 날짜 설정
                     imageFileRepository.save(imageFile);
                 }
 
