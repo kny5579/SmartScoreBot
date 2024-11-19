@@ -11,6 +11,8 @@ import java.util.Optional;
 
 public interface ImageFileRepository extends JpaRepository<ImageFile, Long> {
     List<ImageFile> findByExamDate(Date examDate);
+
+    List<ImageFile> findByExcelId(Long excelId);
     Optional<ImageFile> findById(Long id);
 
     @Transactional

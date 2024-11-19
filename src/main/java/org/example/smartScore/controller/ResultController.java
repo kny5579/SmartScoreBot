@@ -80,6 +80,21 @@ public class ResultController {
         return "resultDate";
     }
 
+    @GetMapping("/resultDetail/{id}")
+    public String getResultDetail(@PathVariable Long id, Model model) {
+        try {
+            List<ImageFile> imageFiles = imageFileRepository.findByExcelId(id);
+            Optional<ExcelFile> excelFiles = excelFileRepository.findById(id);
+
+            model.addAttribute("examDate", excelFiles.get().getExamDate());
+            model.addAttribute("imageFiles", imageFiles);
+            model.addAttribute("excelFiles", excelFiles);
+        } catch (Exception e) {
+            System.err.println("Error fetching result detail: " + e.getMessage());
+        }
+        return "resultDetail";
+    }
+
     @GetMapping("/download/excel")
     public ResponseEntity<InputStreamResource> downloadExcel(@RequestParam("download_date") String dateString) {
         try {

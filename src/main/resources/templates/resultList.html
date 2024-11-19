@@ -108,7 +108,7 @@
     <tr th:each="record : ${Records}">
       <td th:text="${record.examDate}"></td>
       <td th:text="${record.submitDate}"></td>
-      <td><button class="btn btn-primary btn-sm" onclick="viewDetails([[${record.id}]])">상세 보기</button></td>
+      <td><a class="btn btn-primary btn-sm" th:href="@{/resultDetail/{id}(id=${record.id})}">상세 보기</a></td>
       <td><button class="btn btn-danger btn-sm" th:attr="onclick='deleteRecord(' + ${record.id} + ', this)'">삭제</button></td>
     </tr>
     </tbody>
