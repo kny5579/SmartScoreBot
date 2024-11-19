@@ -1,5 +1,6 @@
 package org.example.smartScore.controller;
 
+import jakarta.transaction.Transactional;
 import org.example.smartScore.domain.ExcelFile;
 import org.example.smartScore.domain.ImageFile;
 import org.example.smartScore.repository.ExcelFileRepository;
@@ -12,9 +13,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -145,5 +144,13 @@ public class ResultController {
             System.err.println("Error fetching score distribution for date " + dateString + ": " + e.getMessage());
             return Collections.emptyList();
         }
+    }
+
+    @Transactional
+    @DeleteMapping("/api/delete/{id}")
+    public ResponseEntity<String> deleteRecord(@PathVariable Long id){
+        imageFileRepository.deleteByExcelId(id);
+        excelFileRepository.deleteById(id);
+        return ResponseEntity.ok("삭제되었습니다.");
     }
 }

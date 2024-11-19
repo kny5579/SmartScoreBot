@@ -15,6 +15,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
+import java.math.BigInteger;
 import java.sql.Timestamp; // Timestamp import 추가
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -85,8 +86,9 @@ public class HttpController {
             ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(zipFileBytes);
             ZipInputStream zipInputStream = new ZipInputStream(byteArrayInputStream);
             ZipEntry entry;
+            Long savedExcelFileId = null; // ExcelFile ID 저장 변수
 
-            // 각 파일 처리
+            // 1. 먼저 Excel 파일을 처리하여 ID를 저장
             while ((entry = zipInputStream.getNextEntry()) != null) {
                 String fileName = entry.getName();
                 ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -97,7 +99,6 @@ public class HttpController {
                 }
                 outputStream.close();
 
-                // 파일의 확장자를 확인하여 각 엔티티에 저장
                 if (fileName.endsWith(".xlsx")) {
                     // Excel 파일 저장
                     ExcelFile excelFile = new ExcelFile();
@@ -105,17 +106,38 @@ public class HttpController {
                     excelFile.setData(outputStream.toByteArray());
                     excelFile.setExamDate(examDate); // 시험 날짜 설정
                     excelFile.setSubmitDate(submitDate); // 제출 날짜 설정
-                    excelFileRepository.save(excelFile);
-                } else {
-                    // Image 파일 저장
+                    ExcelFile savedExcelFile = excelFileRepository.save(excelFile);
+                    savedExcelFileId = savedExcelFile.getId(); // ExcelFile ID 저장
+                }
+                zipInputStream.closeEntry();
+            }
+
+            // 2. Excel 파일 ID가 설정되었는지 확인
+            if (savedExcelFileId == null) {
+                throw new IllegalStateException("Excel 파일이 존재하지 않습니다.");
+            }
+
+            // 3. 다시 ZIP 스트림을 열어 이미지 파일 처리
+            zipInputStream = new ZipInputStream(new ByteArrayInputStream(zipFileBytes));
+            while ((entry = zipInputStream.getNextEntry()) != null) {
+                String fileName = entry.getName();
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                byte[] buffer = new byte[1024];
+                int len;
+                while ((len = zipInputStream.read(buffer)) > -1) {
+                    outputStream.write(buffer, 0, len);
+                }
+                outputStream.close();
+
+                if (!fileName.endsWith(".xlsx")) {
                     ImageFile imageFile = new ImageFile();
+                    imageFile.setExcelId(savedExcelFileId);
                     imageFile.setImageName(fileName);
                     imageFile.setData(outputStream.toByteArray());
-                    imageFile.setExamDate(examDate); // 시험 날짜 설정
-                    imageFile.setSubmitDate(submitDate); // 제출 날짜 설정
+                    imageFile.setExamDate(examDate);
+                    imageFile.setSubmitDate(submitDate);
                     imageFileRepository.save(imageFile);
                 }
-
                 zipInputStream.closeEntry();
             }
             zipInputStream.close();

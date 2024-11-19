@@ -18,7 +18,9 @@ import java.util.Date;
 public class ImageFile {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private BigInteger id;
+    private Long id;
+
+    private Long excelId;
 
     @Column(nullable = false)
     private String imageName;
@@ -33,7 +35,8 @@ public class ImageFile {
     private byte[] data;
 
     @Builder
-    public ImageFile(String imageName, Date examDate, Timestamp submitDate) {
+    public ImageFile(String imageName,Long excelId, Date examDate, Timestamp submitDate) {
+        this.excelId = excelId;
         this.imageName = imageName;
         this.examDate = examDate;
         this.submitDate = submitDate;

@@ -17,7 +17,7 @@ import java.util.Date;
 public class ExcelFile {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private BigInteger id;
+    private Long id;
 
     @Column(nullable = false)
     private String fileName;
