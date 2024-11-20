@@ -2,6 +2,7 @@ package org.example.smartScore.controller;
 
 import org.example.smartScore.domain.User;
 import org.example.smartScore.repository.UserRepository;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
