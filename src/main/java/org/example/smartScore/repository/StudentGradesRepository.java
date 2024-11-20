@@ -14,4 +14,5 @@ public interface StudentGradesRepository extends JpaRepository<StudentGrades, Lo
     List<Integer> findScoresByExamDate(@Param("examDate") Date examDate);
 
 
+
 }

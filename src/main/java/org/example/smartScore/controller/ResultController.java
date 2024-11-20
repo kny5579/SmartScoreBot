@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.security.Principal;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.zip.ZipEntry;
@@ -40,17 +41,22 @@ public class ResultController {
     }
 
     @GetMapping("/result")
-    public String getResultData(Model model) {
+    public String getResultData(Model model, Principal principal) {
         try {
-            ExcelFile latestExcelFile = excelFileRepository.findLatestSubmitDateExcelFile();
+            // 현재 로그인된 유저의 이메일 가져오기
+            String userEmail = principal.getName();
+
+            // 최신 제출 날짜의 Excel 파일 가져오기 (유저 기준)
+            ExcelFile latestExcelFile = excelFileRepository.findLatestSubmitDateExcelFileByEmail(userEmail);
 
             if (latestExcelFile != null) {
                 Date date = latestExcelFile.getExamDate();
                 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
                 String dateString = dateFormat.format(date);
 
-                List<ImageFile> imageFiles = imageFileRepository.findByExamDate(date);
-                List<ExcelFile> excelFiles = excelFileRepository.findByExamDate(date);
+                // 해당 유저와 시험 날짜 기준으로 이미지 및 Excel 파일 가져오기
+                List<ImageFile> imageFiles = imageFileRepository.findByExamDateAndEmail(date, userEmail);
+                List<ExcelFile> excelFiles = excelFileRepository.findByExamDateAndEmail(date, userEmail);
 
                 model.addAttribute("examDate", dateString);
                 model.addAttribute("imageFiles", imageFiles);
@@ -62,14 +68,16 @@ public class ResultController {
         return "result";
     }
 
+
     @GetMapping("/resultData")
-    public String getResultData(@RequestParam("exam_Date") String dateString, Model model) {
+    public String getResultData(@RequestParam("exam_Date") String dateString, Model model, Principal principal) {
         try {
+            String userEmail = principal.getName();
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
             Date date = dateFormat.parse(dateString);
 
-            List<ImageFile> imageFiles = imageFileRepository.findByExamDate(date);
-            List<ExcelFile> excelFiles = excelFileRepository.findByExamDate(date);
+            List<ImageFile> imageFiles = imageFileRepository.findByExamDateAndEmail(date, userEmail);
+            List<ExcelFile> excelFiles = excelFileRepository.findByExamDateAndEmail(date, userEmail);
 
             model.addAttribute("examDate", dateString);
             model.addAttribute("imageFiles", imageFiles);
@@ -95,13 +103,15 @@ public class ResultController {
         return "resultDetail";
     }
 
+    // Excel 파일 다운로드
     @GetMapping("/download/excel")
-    public ResponseEntity<InputStreamResource> downloadExcel(@RequestParam("download_date") String dateString) {
+    public ResponseEntity<InputStreamResource> downloadExcel(@RequestParam("download_date") String dateString, Principal principal) {
         try {
+            String userEmail = principal.getName();
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
             Date date = dateFormat.parse(dateString);
 
-            List<ExcelFile> excelFiles = excelFileRepository.findByExamDate(date);
+            List<ExcelFile> excelFiles = excelFileRepository.findByExamDateAndEmail(date, userEmail);
             if (excelFiles.isEmpty()) {
                 throw new RuntimeException("No files found for the specified date");
             }

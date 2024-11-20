@@ -16,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
 import java.math.BigInteger;
+import java.security.Principal;
 import java.sql.Timestamp; // Timestamp import 추가
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -35,7 +36,12 @@ public class HttpController {
     @PostMapping("/upload")
     public String uploadImages(@RequestParam("student_files") MultipartFile[] studentFiles,
                                @RequestParam("answer_files") MultipartFile[] answerFiles,
-                               @RequestParam("exam_date") String dateString) throws IOException, ParseException {
+                               @RequestParam("exam_date") String dateString,
+                               Principal principal) throws IOException, ParseException {
+
+        // 현재 로그인된 유저의 이메일 가져오기
+        String userEmail = principal.getName();
+        System.out.println("User Email: " + userEmail);
 
         // Flask 서버의 URL
         String flaskUrl = "http://flaskserver:5000/upload";
@@ -106,6 +112,7 @@ public class HttpController {
                     excelFile.setData(outputStream.toByteArray());
                     excelFile.setExamDate(examDate); // 시험 날짜 설정
                     excelFile.setSubmitDate(submitDate); // 제출 날짜 설정
+                    excelFile.setEmail(userEmail); // 유저 이메일 설정
                     ExcelFile savedExcelFile = excelFileRepository.save(excelFile);
                     savedExcelFileId = savedExcelFile.getId(); // ExcelFile ID 저장
                 }
@@ -136,6 +143,7 @@ public class HttpController {
                     imageFile.setData(outputStream.toByteArray());
                     imageFile.setExamDate(examDate);
                     imageFile.setSubmitDate(submitDate);
+                    imageFile.setEmail(userEmail); // 유저 이메일 설정
                     imageFileRepository.save(imageFile);
                 }
                 zipInputStream.closeEntry();
@@ -145,4 +153,5 @@ public class HttpController {
 
         return "redirect:/result";
     }
+
 }

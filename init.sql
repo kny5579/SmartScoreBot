@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS imagefile (
     image_name VARCHAR(255) NOT NULL,
     exam_date DATE,
     submit_date TIMESTAMP,
+    email VARCHAR(255) NOT NULL,
     data LONGBLOB
 );
 
@@ -25,6 +26,7 @@ CREATE TABLE IF NOT EXISTS excel_file (
     file_name VARCHAR(255) NOT NULL,
     exam_date DATE,
     submit_date TIMESTAMP,
+    email VARCHAR(255) NOT NULL,
     data LONGBLOB
 );
 

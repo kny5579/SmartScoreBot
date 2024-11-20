@@ -28,4 +28,6 @@ public class StudentGrades {
     @Column(name = "exam_date")
     private Date examDate;
 
+
+
 }

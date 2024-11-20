@@ -31,10 +31,14 @@ public class ExcelFile {
     @Lob //db에 큰 값을 넣기 위함
     private byte[] data;
 
+    @Column(nullable = false)
+    private String email;
+
     @Builder
-    public ExcelFile(String fileName, Date examDate, Timestamp submitDate) {
+    public ExcelFile(String fileName, Date examDate, Timestamp submitDate, String email) {
         this.fileName = fileName;
         this.examDate = examDate;
         this.submitDate = submitDate;
+        this.email = email;
     }
 }

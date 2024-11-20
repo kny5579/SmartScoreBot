@@ -34,11 +34,15 @@ public class ImageFile {
     @Lob //db에 큰 값을 넣기 위함
     private byte[] data;
 
+    @Column(nullable = false)
+    private String email;
+
     @Builder
-    public ImageFile(String imageName,Long excelId, Date examDate, Timestamp submitDate) {
+    public ImageFile(String imageName,Long excelId, Date examDate, Timestamp submitDate, String email) {
         this.excelId = excelId;
         this.imageName = imageName;
         this.examDate = examDate;
         this.submitDate = submitDate;
+        this.email = email;
     }
 }
