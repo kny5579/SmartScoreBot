@@ -40,5 +40,6 @@ CREATE TABLE IF NOT EXISTS student_grades (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     score INT NOT NULL,
     exam_date DATE,
-    student_id VARCHAR(255) NOT NULL
+    student_id VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL
 );

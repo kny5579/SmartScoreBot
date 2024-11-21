@@ -174,13 +174,14 @@
   });
 
   document.addEventListener("DOMContentLoaded", function() {
+    const examDate = /*[[${examDate}]]*/ '';
     const ctx = document.getElementById('scoreDistributionChart').getContext('2d');
     let scoreDistributionChart;
 
-    fetch('/scoreDistribution?exam_Date=${examDate}')
+    fetch(`/scoreDistribution?exam_Date=${examDate}`)
       .then(response => response.json())
       .then(data => {
-        console.log("Received data for chart:", data); // 로그 추가
+        console.log("Received data for chart:", data);
         const distribution = Array(10).fill(0);
         data.forEach(score => {
           const index = Math.min(Math.floor(score / 10), 9);

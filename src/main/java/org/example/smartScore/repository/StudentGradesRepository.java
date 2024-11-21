@@ -14,5 +14,7 @@ public interface StudentGradesRepository extends JpaRepository<StudentGrades, Lo
     List<Integer> findScoresByExamDate(@Param("examDate") Date examDate);
 
 
+    @Query("SELECT s.score FROM StudentGrades s WHERE s.examDate = :examDate AND s.studentId = :email")
+    List<Integer> findByExamDateAndEmail(@Param("examDate") Date examDate, @Param("email") String email);
 
 }

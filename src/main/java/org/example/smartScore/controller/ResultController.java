@@ -157,12 +157,13 @@ public class ResultController {
 
     @GetMapping("/scoreDistribution")
     @ResponseBody
-    public List<Integer> getScoreDistribution(@RequestParam("exam_Date") String dateString) {
+    public List<Integer> getScoreDistribution(@RequestParam("exam_Date") String dateString, Principal principal) {
         try {
+            String userEmail = principal.getName();
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
             Date date = dateFormat.parse(dateString);
 
-            List<Integer> scores = studentGradesRepository.findScoresByExamDate(date);
+            List<Integer> scores = studentGradesRepository.findByExamDateAndEmail(date, userEmail);
             System.out.println("Fetched scores for chart: " + scores);
             return scores;
         } catch (Exception e) {

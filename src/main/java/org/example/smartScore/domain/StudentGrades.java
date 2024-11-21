@@ -17,7 +17,7 @@ public class StudentGrades {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private BigInteger id;
+    private Long id;
 
     @Column(nullable = false)
     private String studentId; // 학번
@@ -27,6 +27,8 @@ public class StudentGrades {
 
     @Column(name = "exam_date")
     private Date examDate;
+
+    private String email;
 
 
 
