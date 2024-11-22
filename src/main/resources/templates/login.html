@@ -63,39 +63,41 @@
         .join {
             text-align: center;
         }
-
     </style>
 </head>
 <body>
 
-    <form action="/login" method="POST">
-        <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}" />
-        <table>
-            <tr>
-                <td><h2>로그인</h2></td>
-            </tr>
-            <tr>
-                <td><input type="text" name="username" placeholder="Email"></td>
-            </tr>
-            <tr>
-                <td><input type="password" name="password" placeholder="Password"></td>
-            </tr>
-            <tr class="login-check">
-                <td>
-                    <input type="checkbox" id="remember-me" name="remember-me" />
-                    <label for="remember-me" style>로그인 유지</label>
-                </td>
-            </tr>
-            <tr>
-                <td><button type="submit" class="btn btn-primary">로그인</button> </td>
-            </tr>
-            <div th:if="${error}">
-                <p style="color: red;" th:text="${exception}"></p>
-            </div>
-            <tr>
-                <td><button type="button" class="btn btn-secondary mt-3" onclick="location.href='/signup'">회원가입</button></td>
-            </tr>
-        </table>
-    </form>
+<form action="/login" method="POST">
+    <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}" />
+    <table>
+        <tr>
+            <td><h2>로그인</h2></td>
+        </tr>
+        <tr>
+            <td><input type="text" name="username" placeholder="Email"></td>
+        </tr>
+        <tr>
+            <td><input type="password" name="password" placeholder="Password"></td>
+        </tr>
+        <tr class="login-check">
+            <td>
+                <input type="checkbox" id="remember-me" name="remember-me" />
+                <label for="remember-me">로그인 유지</label>
+            </td>
+        </tr>
+        <tr>
+            <td><button type="submit" class="btn btn-primary">로그인</button></td>
+        </tr>
+        <div th:if="${error}">
+            <p style="color: red;" th:text="${exception}"></p>
+        </div>
+        <tr>
+            <td><button type="button" class="btn btn-secondary mt-3" onclick="location.href='/signup'">회원가입</button></td>
+        </tr>
+        <tr>
+            <td class="join"><a href="/forgot-password">비밀번호 찾기</a></td>
+        </tr>
+    </table>
+</form>
 </body>
 </html>
