@@ -183,54 +183,14 @@
   });
 
   document.addEventListener("DOMContentLoaded", function() {
+    const examDate = /*[[${examDate}]]*/ '';
     const ctx = document.getElementById('scoreDistributionChart').getContext('2d');
     let scoreDistributionChart;
 
-    document.getElementById("dateForm").addEventListener("submit", function(event) {
-      event.preventDefault();
-      const selectedDate = document.getElementById("exam_Date").value;
-
-      fetch(`/scoreDistribution?exam_Date=${selectedDate}`)
-              .then(response => response.json())
-              .then(data => {
-                console.log("Received data for chart:", data); // 로그 추가
-                const distribution = Array(10).fill(0);
-                data.forEach(score => {
-                  const index = Math.min(Math.floor(score / 10), 9);
-                  distribution[index]++;
-                });
-
-                if (scoreDistributionChart) {
-                  scoreDistributionChart.destroy();
-                }
-
-                scoreDistributionChart = new Chart(ctx, {
-                  type: 'bar',
-                  data: {
-                    labels: ['0-10', '11-20', '21-30', '31-40', '41-50', '51-60', '61-70', '71-80', '81-90', '91-100'],
-                    datasets: [{
-                      label: '점수 분포',
-                      data: distribution,
-                      backgroundColor: 'rgba(54, 162, 235, 0.6)',
-                      borderColor: 'rgba(54, 162, 235, 1)',
-                      borderWidth: 1
-                    }]
-                  },
-                  options: {
-                    scales: {
-                      y: {
-                        beginAtZero: true
-                      }
-                    }
-                  }
-                });
-              })
-              .catch(error => console.error('Error loading score distribution:', error));
-    });
-    fetch('/scoreDistribution?exam_Date=${examDate}')
+    fetch(`/scoreDistribution?exam_Date=${examDate}`)
       .then(response => response.json())
       .then(data => {
-        console.log("Received data for chart:", data); // 로그 추가
+        console.log("Received data for chart:", data);
         const distribution = Array(10).fill(0);
         data.forEach(score => {
           const index = Math.min(Math.floor(score / 10), 9);
@@ -264,6 +224,7 @@
       })
       .catch(error => console.error('Error loading score distribution:', error));
   });
+
 </script>
 </body>
 </html>
