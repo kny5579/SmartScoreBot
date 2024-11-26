@@ -2,25 +2,22 @@ from flask import Flask, render_template, request, send_file, url_for
 import zipfile
 import os
 from io import BytesIO
-from PIL import Image
-import pandas as pd
 from datetime import datetime, timezone
 
-import pytesseract
-from  sklearn.cluster  import  AgglomerativeClustering
-from  pytesseract import Output
-
-import pytesseract
-from PIL import ImageEnhance, ImageFilter, Image
-pytesseract.pytesseract.tesseract_cmd = ( r'/usr/bin/tesseract' )
-
+from PIL import Image, ImageEnhance, ImageFilter
+import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
+
 import pytesseract
-import argparse
+from pytesseract import Output
+pytesseract.pytesseract.tesseract_cmd = r'/usr/bin/tesseract'
+
+from sklearn.cluster import AgglomerativeClustering
+from sklearn.datasets import make_blobs
+
 import imutils
 import cv2
-import matplotlib.pyplot as plt
-from sklearn.datasets import make_blobs
 from skimage import data
 from skimage.filters import threshold_otsu, threshold_local
 import glob
