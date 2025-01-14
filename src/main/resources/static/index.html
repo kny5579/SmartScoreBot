@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>스마트 채점봇</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+    <style>
+        .custom-container {
+            padding: 5rem 0;
+        }
+    </style>
+</head>
+
+<body>
+<div class="container-fluid bg-light custom-container">
+    <div class="text-center">
+        <h1 class="mb-3">스마트 채점봇</h1>
+        <h4 class="mb-5">채점을 위한 정보를 입력해주세요.</h4>
+    </div>
+</div>
+<div class="container mt-5">
+    <form action="/upload" method="post" enctype="multipart/form-data">
+        <div class="row">
+            <div class="col-md-8 offset-md-2">
+                <h2 class="mb-3">시험 날짜</h2>
+                <div class="form-group">
+                    <label for="exam_date">날짜 선택:</label>
+                    <input type="date" class="form-control" id="exam_date" name="exam_date" required>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-5">
+            <div class="col-md-8 offset-md-2">
+                <h2 class="mb-3">채점할 파일</h2>
+                <div class="form-group">
+                    <input type="file" class="form-control-file" id="student_files" name="student_files" multiple accept=".txt,.pdf,.doc,.docx" required>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-5">
+            <div class="col-md-8 offset-md-2">
+                <h2 class="mb-3">정답 파일</h2>
+                <div class="form-group">
+                    <input type="file" class="form-control-file" id="answer_files" name="answer_files" multiple accept=".txt,.pdf,.doc,.docx" required>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-5">
+            <div class="col-md-4 offset-md-4 text-center">
+                <button type="submit" class="btn btn-primary btn-lg">제출하기</button>
+            </div>
+        </div>
+    </form>
+    <div class="row mt-5">
+        <div class="col-md-4 offset-md-4 text-center">
+            <button type="button" class="btn btn-primary btn-lg" onclick="goToResultPage()">결과 확인하기</button>
+        </div>
+    </div>
+</div>
+<script>
+    function goToResultPage() {
+        window.location.href = "/result.html";
+    }
+</script>
+</body>
+</html>
