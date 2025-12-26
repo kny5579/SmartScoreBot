@@ -171,7 +171,7 @@ OCR 엔진 : OpenCV를 활용한 이미지 전처리 과정을 거쳐 tensorflow
 이미지 파일과 엑셀 파일에는 파일 명과 데이터를 byte 타입으로 저장하며 채점 기록 및 날짜로 검색하기 위한 채점 날짜와 시험 날짜를 date 타입으로 저장합니다. 유저 테이블은 회원가입시 이메일과 비밀번호 정보가 저장되며 점수 테이블은 학생 점수와 시험 날짜, 채점 날짜, 학번 정보가 저장됩니다.
 
 
-![img.png](img.png)
+![img.png](outputfile/img.png)
 
 → `entity 구성 DB 스키마`
 
@@ -179,11 +179,11 @@ OCR 엔진 : OpenCV를 활용한 이미지 전처리 과정을 거쳐 tensorflow
 
 전체적인 설계는 다음과 같습니다.
 
-![img_1.png](img_1.png)
+![img_1.png](outputfile/img_1.png)
 
 → `전체 구성 클래스 다이어그램`
 
-![img_2.png](img_2.png)
+![img_2.png](outputfile/img_2.png)
 
 → `최종적인 시스템 설계 구상도`
 
@@ -269,7 +269,7 @@ OCR 엔진 : OpenCV를 활용한 이미지 전처리 과정을 거쳐 tensorflow
 
 * 프로그램 실행 환경
     * Docker container에서 실행
-      ![img_4.png](img_4.png)
+      ![img_4.png](outputfile/img_4.png)
 
 
 <br/>
@@ -277,12 +277,12 @@ OCR 엔진 : OpenCV를 활용한 이미지 전처리 과정을 거쳐 tensorflow
 
 ### :star: 사용자 인터페이스 디자인
 
-![img_9.png](img_9.png)![img_10.png](img_10.png)
-![img_11.png](img_11.png)
-![img_12.png](img_12.png)
-![img_13.png](img_13.png)
-![img_14.png](img_14.png)
-![img_15.png](img_15.png)
+![img_9.png](outputfile/img_9.png)![img_10.png](outputfile/img_10.png)
+![img_11.png](outputfile/img_11.png)
+![img_12.png](outputfile/img_12.png)
+![img_13.png](outputfile/img_13.png)
+![img_14.png](outputfile/img_14.png)
+![img_15.png](outputfile/img_15.png)
 
 
 <br/>
@@ -315,14 +315,14 @@ OCR 엔진 : OpenCV를 활용한 이미지 전처리 과정을 거쳐 tensorflow
 ### :star: 성능 평가
 
 다음은 학습시킨 CNN 모델을 로드하여 손글씨 550개의 답안지를 인식했을 때의 인식 성능입니다.
-![img_5.png](img_5.png)
+![img_5.png](outputfile/img_5.png)
 [Validation Accuracy 이미지]
 76.63%로 Validation Accuracy가 기대보다 낮게 나왔는데, 이는 모델이 표와 결합된 상태에서 숫자를 바로 인식하도록 하기 위해 6만 장의 MNIST 이미지를 학습시킨 모델이라 영향을 미쳤을 가능성이 있습니다. 또한 크기가 과도하게 작은 숫자 이미지의 경우 (28x28) 크기에 맞추기 위해 사이즈를 변환하는 과정에서 이미지가 흐려지고 왜곡이 발생했을 수 있습니다. 이러한 요소도 정확도에 영향을 미쳤을 것으로 예상됩니다. 실제 프로그램에서 모델을 사용할 때는 전처리 과정 중 스케일 조정을 통해 정확도를 높이는 방향으로 개발할 예정입니다. 또한 현재 테이블 추출 문제로 인해 선분이 포함된 이미지를 모델에 학습시켰으나, 이미지 처리 과정에서 테이블 추출 문제를 해결한다면 모델을 폐기하고 선분이 없는 손글씨에 대한 학습을 다시 진행할 예정입니다.
-![img_6.png](img_6.png)
+![img_6.png](outputfile/img_6.png)
 [혼동 행렬 이미지]
 이 그래프는 학습시킨 CNN 모델의 혼동 행렬입니다. 2의 인식 정확도가 가장 높았으며, 0과 9는 상대적으로 낮은 positive 값을 가지는 것을 확인할 수 있습니다. 현재 상대적으로 낮은 값을 가지는 클래스들에 대해 추가적인 표본을 확보하고 다시 학습하여 성능을 향상시킬 예정입니다. 다만, 550개의 데이터가 클래스별로 불균등하게 분포되어 있기 때문에 9처럼 표본이 적은 클래스의 경우 신뢰도가 높지 않을 수 있습니다. 3과 2가 단국대학교 재학생 특성상 고정적으로 포함되어 표본이 치우친 점도 영향을 미친 것으로 보입니다. 표본이 적은 클래스는 추가 표본을 수집하여 다시 학습하고 검증을 진행할 필요가 있습니다.
-![img_7.png](img_7.png)
-![img_8.png](img_8.png)
+![img_7.png](outputfile/img_7.png)
+![img_8.png](outputfile/img_8.png)
 [무작위 샘플 실제 값/예측 값 비교 이미지]
 이 표는 검증에 사용된 데이터 중 무작위로 10개를 선택하여 CNN 모델이 예측한 값과 실제 값의 비교를 보여줍니다. 이를 통해 모델이 어떻게 잘못 인식했는지를 확인할 수 있습니다.
 
