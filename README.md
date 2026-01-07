@@ -1,5 +1,47 @@
 # 스마트 채점봇
 
+<details>
+<summary><b>🔄 리팩토링 사항(2026)</b></summary>
+
+프로젝트의 코드 품질과 유지보수성을 향상시키기 위한 주요 리팩토링 작업을 수행했습니다.
+
+### 주요 개선 사항
+
+#### 1. **의존성 주입 통일**
+- 모든 `@Autowired` 필드 주입을 생성자 주입(`@RequiredArgsConstructor`)으로 변경
+- 테스트 용이성 및 순환 참조 방지 효과
+
+#### 2. **로깅 시스템 개선**
+- `System.out.println`, `System.err.println` → `Logger`(SLF4J)로 전면 교체
+- 적절한 로그 레벨(DEBUG, INFO, WARN, ERROR) 적용
+
+#### 3. **서비스 레이어 분리**
+- `FileUploadService`: 파일 업로드 및 Flask 서버 통신 로직 분리
+- `ResultService`: 결과 조회, 다운로드, 삭제 로직 분리
+- 컨트롤러는 HTTP 요청/응답 처리에만 집중하도록 단순화
+
+#### 4. **유틸리티 및 상수 클래스 생성**
+- `DateUtils`: 날짜 파싱/포맷팅 중복 코드 제거
+- `AppConstants`: 하드코딩된 문자열을 상수로 추출
+- `RestTemplateConfig`: RestTemplate Bean 설정 분리
+
+#### 5. **예외 처리 개선**
+- `GlobalExceptionHandler`: 전역 예외 핸들러 추가
+- `Optional.get()` 사용 시 적절한 예외 처리
+
+#### 6. **코드 품질 개선**
+- 불필요한 주석 제거 및 코드 정리
+- 메서드 매개변수 명시적 선언
+- 반환 타입 일관성 개선
+- SecurityConfig 상수 추출 및 코드 정리
+
+#### 7. **구조 개선**
+- 패키지 구조 정리: `util`, `constants`, `exception` 패키지 추가
+- 계층별 책임 분리 명확화 (Controller → Service → Repository)
+
+</details>
+
+---
 
 >저희 프로젝트명인 스마트 채점봇은 이미지 인식을 통해 자동으로 채점해서 파일까지 만들어준다는 의미에서 지어졌습니다.<br/>
 

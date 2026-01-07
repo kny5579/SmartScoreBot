@@ -1,14 +1,15 @@
 package org.example.smartScore.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.smartScore.domain.User;
 import org.example.smartScore.dto.JoinDto;
 import org.example.smartScore.repository.UserRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
-
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class UserService {
@@ -16,24 +17,38 @@ public class UserService {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    public Long save(JoinDto dto){
-        return userRepository.save(User.builder()
+    @Transactional
+    public Long save(JoinDto dto) {
+        User user = User.builder()
                 .email(dto.getEmail())
-                // 패스워드 암호화
                 .password(bCryptPasswordEncoder.encode(dto.getPassword()))
-                .build()).getId();
+                .build();
+        
+        Long userId = userRepository.save(user).getId();
+        log.info("User registered successfully: email={}, id={}", dto.getEmail(), userId);
+        return userId;
     }
 
-    // 비밀번호 변경 메서드 추가
+    @Transactional
     public boolean updatePassword(String email, String newPassword) {
-        Optional<User> userOptional = userRepository.findByEmail(email);
-        if (userOptional.isPresent()) {
-            User user = userOptional.get();
-            user.setPassword(bCryptPasswordEncoder.encode(newPassword)); // 새 비밀번호 암호화 후 설정
-            userRepository.save(user);
-            return true;
-        }
-        return false; // 사용자를 찾을 수 없는 경우 false 반환
+        return userRepository.findByEmail(email)
+                .map(user -> {
+                    user.setPassword(bCryptPasswordEncoder.encode(newPassword));
+                    userRepository.save(user);
+                    log.info("Password updated successfully for user: {}", email);
+                    return true;
+                })
+                .orElseGet(() -> {
+                    log.warn("User not found for password update: {}", email);
+                    return false;
+                });
     }
 
+    @Transactional
+    public void deleteUser(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다: " + email));
+        userRepository.delete(user);
+        log.info("User deleted successfully: {}", email);
+    }
 }

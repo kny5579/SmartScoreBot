@@ -1,35 +1,33 @@
 package org.example.smartScore.controller;
 
-import org.example.smartScore.domain.User;
-import org.example.smartScore.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.example.smartScore.service.UserService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
-@RestController
+@Slf4j
+@Controller
 @RequestMapping("/delete-account")
+@RequiredArgsConstructor
 public class AccountController {
 
-    private final UserRepository userRepository;
-
-    public AccountController(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
+    private final UserService userService;
 
     @PostMapping
     public String deleteAccount(@AuthenticationPrincipal UserDetails userDetails) {
-        // 현재 로그인한 사용자 정보 가져오기
         String email = userDetails.getUsername();
+        log.info("Account deletion requested for user: {}", email);
 
-        // 데이터베이스에서 사용자 삭제
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
-        userRepository.delete(user);
+        userService.deleteUser(email);
 
-        // Spring Security 세션 무효화
         SecurityContextHolder.clearContext();
+        log.info("Account deleted and session invalidated for user: {}", email);
 
-        return "redirect:/"; // 메인 페이지로 리디렉션
+        return "redirect:/";
     }
 }
