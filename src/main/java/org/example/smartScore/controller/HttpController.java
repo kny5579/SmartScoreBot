@@ -1,6 +1,5 @@
 package org.example.smartScore.controller;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.smartScore.service.FileUploadService;
 import org.springframework.http.ResponseEntity;
@@ -15,10 +14,13 @@ import java.text.ParseException;
 
 @Slf4j
 @Controller
-@RequiredArgsConstructor
 public class HttpController {
 
     private final FileUploadService fileUploadService;
+
+    public HttpController(FileUploadService fileUploadService) {
+        this.fileUploadService = fileUploadService;
+    }
 
     @PostMapping("/upload")
     public ResponseEntity<String> uploadImages(

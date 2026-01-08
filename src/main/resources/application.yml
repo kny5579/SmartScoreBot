@@ -32,9 +32,15 @@ spring:
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://mysqldb:3306/smartscoredb
+    url: jdbc:mysql://localhost:3306/smartscoredb?useSSL=false&serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true
     username: root
-    password: '1234'
+    password: 1234
   thymeleaf:
     cache: false
 
+google:
+  cloud:
+    vision:
+      enabled: true # true로 설정하고 인증 정보를 설정해야 OCR 기능 사용 가능
+      credentials:
+        path: C:/gcp/smartscore-483706-b7d67bf8ad27.json # 인증 파일 경로 (예: C:/path/to/credentials.json)

@@ -19,10 +19,9 @@ public class UserService {
 
     @Transactional
     public Long save(JoinDto dto) {
-        User user = User.builder()
-                .email(dto.getEmail())
-                .password(bCryptPasswordEncoder.encode(dto.getPassword()))
-                .build();
+        User user = new User();
+        user.setEmail(dto.getEmail());
+        user.setPassword(bCryptPasswordEncoder.encode(dto.getPassword()));
         
         Long userId = userRepository.save(user).getId();
         log.info("User registered successfully: email={}, id={}", dto.getEmail(), userId);
