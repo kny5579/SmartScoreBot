@@ -66,8 +66,9 @@ public class FileUploadService {
         }
         
         byte[] answerImageBytes = answerFiles[0].getBytes();
-        List<String> correctAnswers = ocrService.extractAnswersFromImage(answerImageBytes);
-        log.info("Extracted {} correct answers from answer sheet", correctAnswers.size());
+        // 문제 번호와 답안을 함께 추출 (문제 번호 기준 매핑)
+        Map<Integer, String> correctAnswersMap = ocrService.extractAnswersWithQuestionNumbers(answerImageBytes);
+        log.info("Extracted {} correct answers from answer sheet (with question numbers)", correctAnswersMap.size());
 
         // 학생 답안 이미지 처리
         List<GradingResult> gradingResults = new ArrayList<>();
@@ -77,18 +78,19 @@ public class FileUploadService {
             try {
                 byte[] studentImageBytes = studentFile.getBytes();
                 
-                // OCR로 학생 답안 추출
-                List<String> studentAnswers = ocrService.extractAnswersFromImage(studentImageBytes);
+                // OCR로 학생 답안 추출 (문제 번호와 함께)
+                Map<Integer, String> studentAnswersMap = ocrService.extractAnswersWithQuestionNumbers(studentImageBytes);
                 
                 // 파일명에서 학번 추출 (예: "2024123456.jpg" -> "2024123456")
                 String fileName = studentFile.getOriginalFilename();
                 String studentId = extractStudentId(fileName);
                 
-                log.info("Processing student {}: extracted {} answers", studentId, studentAnswers.size());
+                log.info("Processing student {}: extracted {} answers (with question numbers)", 
+                        studentId, studentAnswersMap.size());
                 
-                // 채점 수행
-                GradingResult result = gradingService.gradeAnswers(
-                        studentAnswers, correctAnswers, studentId, examDate, userEmail);
+                // 문제 번호 기준으로 채점 수행
+                GradingResult result = gradingService.gradeAnswersWithQuestionNumbers(
+                        studentAnswersMap, correctAnswersMap, studentId, examDate, userEmail);
                 gradingResults.add(result);
                 
                 // 이미지 정보 저장 (나중에 excelId 설정)
