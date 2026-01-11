@@ -39,6 +39,17 @@
 - 패키지 구조 정리: `util`, `constants`, `exception` 패키지 추가
 - 계층별 책임 분리 명확화 (Controller → Service → Repository)
 
+#### 8. **OCR 및 채점 로직 개선**
+- **Google Cloud Vision OCR 기능 활용**: 기존에 ocr 인식이 잘 이루어지지 않던 flaskserver의 ai 구현 대신 ocr 도입으로 채점 기능 개선
+- **문제 번호 기준 매핑 채점**: 기존의 인덱스 순서 기반 채점에서 문제 번호를 기준으로 매핑하는 방식으로 개선
+  - `OcrService.extractAnswersWithQuestionNumbers()`: OCR 결과에서 문제 번호와 답안을 함께 추출
+  - 지원 형식: `"1: 3"`, `"1번: 5"`, `"1. 2"` (문제 번호와 답안이 함께 있는 경우)
+  - 문제 번호 없이 답안만 있는 경우 순서대로 1번부터 자동 매핑
+- **정확한 채점 매핑**: `GradingService.gradeAnswersWithQuestionNumbers()` 메서드 추가
+  - 정답 파일과 학생 답안 파일 모두에서 문제 번호를 추출하여 정확하게 매핑
+  - OCR 순서 오류와 무관하게 문제 번호 기준으로 정확한 채점 수행
+- **하위 호환성 유지**: 기존 `extractAnswersFromImage()` 메서드 유지
+
 </details>
 
 ---
