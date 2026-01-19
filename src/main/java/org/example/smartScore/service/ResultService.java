@@ -19,6 +19,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.text.ParseException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 
 import java.util.zip.ZipEntry;
@@ -64,7 +67,11 @@ public class ResultService {
         ExcelFile excelFile = excelFileRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Excel file not found with id: " + id));
 
-        return new ResultDetailData(excelFile.getExamDate(), imageFiles, excelFile);
+        Date date = excelFile.getExamDate();
+        LocalDate examDate = date.toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate();
+        return new ResultDetailData(examDate, imageFiles, excelFile);
     }
 
     public ResponseEntity<InputStreamResource> downloadExcelFiles(String dateString, String userEmail) 
@@ -89,10 +96,15 @@ public class ResultService {
     }
 
     public List<Integer> getScoreDistribution(String dateString, String userEmail) throws ParseException {
-        Date date = DateUtils.parseDate(dateString);
-        List<Integer> scores = studentGradesRepository.findByExamDateAndEmail(date, userEmail);
-        log.debug("Fetched scores for chart: {}", scores);
-        return scores;
+        LocalDate date = LocalDate.parse(dateString);
+
+        LocalDateTime startLdt = date.atStartOfDay();
+        LocalDateTime endLdt = date.plusDays(1).atStartOfDay();
+
+        Date start = Date.from(startLdt.atZone(ZoneId.systemDefault()).toInstant());
+        Date end = Date.from(endLdt.atZone(ZoneId.systemDefault()).toInstant());
+
+        return studentGradesRepository.findScoresByDate(start, end, userEmail);
     }
 
     @Transactional
@@ -139,6 +151,6 @@ public class ResultService {
     }
 
     public record ResultData(String examDate, List<ImageFile> imageFiles, List<ExcelFile> excelFiles) {}
-    public record ResultDetailData(Date examDate, List<ImageFile> imageFiles, ExcelFile excelFile) {}
+    public record ResultDetailData(LocalDate examDate, List<ImageFile> imageFiles, ExcelFile excelFile) {}
 }
 

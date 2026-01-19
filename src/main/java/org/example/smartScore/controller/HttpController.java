@@ -1,9 +1,13 @@
 package org.example.smartScore.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.example.smartScore.repository.ExcelFileRepository;
+import org.example.smartScore.repository.ImageFileRepository;
 import org.example.smartScore.service.FileUploadService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
@@ -11,28 +15,32 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.security.Principal;
 import java.text.ParseException;
+import java.util.List;
 
 @Slf4j
+@RequiredArgsConstructor
 @Controller
 public class HttpController {
 
     private final FileUploadService fileUploadService;
 
-    public HttpController(FileUploadService fileUploadService) {
-        this.fileUploadService = fileUploadService;
-    }
-
     @PostMapping("/upload")
-    public ResponseEntity<String> uploadImages(
+    public String uploadImages(
             @RequestParam("student_files") MultipartFile[] studentFiles,
             @RequestParam("answer_files") MultipartFile[] answerFiles,
             @RequestParam("exam_date") String dateString,
-            Principal principal) throws IOException, ParseException {
+            Principal principal
+    ) throws IOException, ParseException {
 
         String userEmail = principal.getName();
-        log.info("File upload request received from user: {}, exam date: {}", userEmail, dateString);
 
-        String result = fileUploadService.uploadAndProcessFiles(studentFiles, answerFiles, dateString, userEmail);
-        return ResponseEntity.ok(result);
+        fileUploadService.uploadAndProcessFiles(
+                studentFiles,
+                answerFiles,
+                dateString,
+                userEmail
+        );
+
+        return "redirect:/result";
     }
 }

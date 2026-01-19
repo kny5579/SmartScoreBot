@@ -75,7 +75,7 @@
     </div>
 </div>
 
-<div th:if="${excelFiles.isPresent()}">
+<div th:if="${excelFiles!=null}">
     <hr class="divider">
     <div class="row mt-5">
         <div class="col-md-8 offset-md-2">
@@ -91,13 +91,13 @@
                     <div id="collapseExcel" class="collapse" aria-labelledby="headingExcel">
                         <div class="card-body">
                             <form action="/download/excel" method="get">
-                                <input type="hidden" name="download_date" th:value="${excelFiles.get().examDate}">
+                                <input type="hidden" name="download_date" th:value="${excelFiles.examDate}">
                                 <button type="submit" class="btn btn-primary">엑셀 파일 다운로드</button>
                             </form>
                             <ul class="list-group mt-3">
                                 <!-- Optional에서 값을 꺼내고 단일 Excel 파일 처리 -->
-                                <li class="list-group-item" th:if="${excelFiles.isPresent()}">
-                                    <span th:text="${excelFiles.get().fileName}"></span>
+                                <li class="list-group-item" th:if="${excelFiles!=null}">
+                                    <span th:text="${excelFiles.fileName}"></span>
                                 </li>
                             </ul>
                         </div>
@@ -165,55 +165,58 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<script>
-  $('#imageModal').on('show.bs.modal', function (event) {
-    const button = $(event.relatedTarget);
-    const imageUrl = button.data('src');
-    const modal = $(this);
-    modal.find('.modal-body img').attr('src', imageUrl);
-  });
+<script th:inline="javascript">
+  let scoreDistributionChart = null;
+  const examDate = [[${examDate}]];
 
-  document.addEventListener("DOMContentLoaded", function() {
-    const examDate = /*[[${examDate}]]*/ '';
-    const ctx = document.getElementById('scoreDistributionChart').getContext('2d');
-    let scoreDistributionChart;
+   console.log("examDate =", examDate);
+
+  $('#collapseChart').on('shown.bs.collapse', function () {
+
+    if (scoreDistributionChart) {
+      scoreDistributionChart.resize();
+      return;
+    }
 
     fetch(`/scoreDistribution?exam_Date=${examDate}`)
-      .then(response => response.json())
+      .then(res => res.json())
       .then(data => {
         console.log("Received data for chart:", data);
+
         const distribution = Array(10).fill(0);
         data.forEach(score => {
-          const index = Math.min(Math.floor(score / 10), 9);
-          distribution[index]++;
+          const idx = Math.min(Math.floor(score / 10), 9);
+          distribution[idx]++;
         });
 
-        if (scoreDistributionChart) {
-          scoreDistributionChart.destroy();
-        }
+        const ctx = document
+          .getElementById('scoreDistributionChart')
+          .getContext('2d');
 
         scoreDistributionChart = new Chart(ctx, {
           type: 'bar',
           data: {
-            labels: ['0-10', '11-20', '21-30', '31-40', '41-50', '51-60', '61-70', '71-80', '81-90', '91-100'],
+            labels: [
+              '0-10','11-20','21-30','31-40','41-50',
+              '51-60','61-70','71-80','81-90','91-100'
+            ],
             datasets: [{
               label: '점수 분포',
               data: distribution,
-              backgroundColor: 'rgba(54, 162, 235, 0.6)',
-              borderColor: 'rgba(54, 162, 235, 1)',
-              borderWidth: 1
+              backgroundColor: 'rgba(54, 162, 235, 0.6)'
             }]
           },
           options: {
+            responsive: true,
+            maintainAspectRatio: false,
             scales: {
-              y: {
-                beginAtZero: true
-              }
+              y: { beginAtZero: true }
             }
           }
         });
-      })
-      .catch(error => console.error('Error loading score distribution:', error));
+
+        setTimeout(() => scoreDistributionChart.resize(), 50);
+      });
   });
 </script>
 </body>

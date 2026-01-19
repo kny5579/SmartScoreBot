@@ -5,6 +5,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -14,7 +16,17 @@ public interface StudentGradesRepository extends JpaRepository<StudentGrades, Lo
     List<Integer> findScoresByExamDate(@Param("examDate") Date examDate);
 
 
-    @Query("SELECT s.score FROM StudentGrades s WHERE s.examDate = :examDate AND s.studentId = :email")
-    List<Integer> findByExamDateAndEmail(@Param("examDate") Date examDate, @Param("email") String email);
+    @Query("""
+            SELECT s.score
+            FROM StudentGrades s
+            WHERE s.examDate >= :start
+            AND s.examDate < :end
+            AND s.email = :email
+            """)
+    List<Integer> findScoresByDate(
+            @Param("start") Date start,
+            @Param("end") Date end,
+            @Param("email") String email
+    );
 
 }
