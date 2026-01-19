@@ -15,17 +15,6 @@ import java.util.*;
 public class GradingService {
 
     private final StudentGradesRepository studentGradesRepository;
-
-    /**
-     * 문제 번호를 기준으로 답안을 매핑하여 채점합니다.
-     * 
-     * @param studentAnswers 학생 답안 맵 (문제 번호 -> 답안)
-     * @param correctAnswers 정답 맵 (문제 번호 -> 답안)
-     * @param studentId 학생 ID
-     * @param examDate 시험 날짜
-     * @param email 사용자 이메일
-     * @return 채점 결과
-     */
     public GradingResult gradeAnswersWithQuestionNumbers(
             Map<Integer, String> studentAnswers, 
             Map<Integer, String> correctAnswers,
@@ -66,17 +55,7 @@ public class GradingService {
         
         return new GradingResult(studentId, score, correctCount, totalQuestions, questionResults);
     }
-    
-    /**
-     * 순서대로 답안을 비교하여 채점합니다 (기존 방식, 하위 호환성 유지).
-     * 
-     * @param studentAnswers 학생 답안 리스트 (순서대로)
-     * @param correctAnswers 정답 리스트 (순서대로)
-     * @param studentId 학생 ID
-     * @param examDate 시험 날짜
-     * @param email 사용자 이메일
-     * @return 채점 결과
-     */
+
     public GradingResult gradeAnswers(List<String> studentAnswers, List<String> correctAnswers, 
                                      String studentId, Date examDate, String email) {
         
@@ -104,8 +83,7 @@ public class GradingService {
         
         int score = totalQuestions > 0 ? 
                 (int) Math.round((double) correctCount / totalQuestions * 100) : 0;
-        
-        // 점수 저장
+
         saveGrade(studentId, score, examDate, email);
         
         log.info("Grading completed for student {}: {}/{} correct, score: {}", 
