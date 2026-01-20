@@ -3,6 +3,7 @@ package org.example.smartScore.service;
 import lombok.extern.slf4j.Slf4j;
 import org.example.smartScore.domain.ExcelFile;
 import org.example.smartScore.domain.ImageFile;
+import org.example.smartScore.dto.OcrResult;
 import org.example.smartScore.repository.ExcelFileRepository;
 import org.example.smartScore.repository.ImageFileRepository;
 import org.example.smartScore.service.GradingService.GradingResult;
@@ -66,42 +67,52 @@ public class FileUploadService {
         }
         
         byte[] answerImageBytes = answerFiles[0].getBytes();
-        // 문제 번호와 답안을 함께 추출 (문제 번호 기준 매핑)
-        Map<Integer, String> correctAnswersMap = ocrService.extractAnswersWithQuestionNumbers(answerImageBytes);
-        log.info("Extracted {} correct answers from answer sheet (with question numbers)", correctAnswersMap.size());
+        // 답안 추출 (문제 번호 기준 매핑)
+        Map<Integer, String> correctAnswersMap = ocrService.extractAnswersOnly(answerImageBytes);
+        log.info("Extracted {} correct answers from answer sheet", correctAnswersMap.size());
 
         // 학생 답안 이미지 처리
         List<GradingResult> gradingResults = new ArrayList<>();
         List<ImageFile> studentImages = new ArrayList<>();
-        
+
         for (MultipartFile studentFile : studentFiles) {
             try {
                 byte[] studentImageBytes = studentFile.getBytes();
-                
-                // OCR로 학생 답안 추출 (문제 번호와 함께)
-                Map<Integer, String> studentAnswersMap = ocrService.extractAnswersWithQuestionNumbers(studentImageBytes);
-                
-                // 파일명에서 학번 추출 (예: "2024123456.jpg" -> "2024123456")
+
                 String fileName = studentFile.getOriginalFilename();
-                String studentId = extractStudentId(fileName);
-                
-                log.info("Processing student {}: extracted {} answers (with question numbers)", 
+                String fallbackStudentId = extractStudentId(fileName);
+
+                OcrResult ocrResult = ocrService.extractStudentIdAndAnswers(
+                        studentImageBytes,
+                        fallbackStudentId
+                );
+
+                String studentId = ocrResult.studentId();
+                Map<Integer, String> studentAnswersMap = ocrResult.answers();
+
+                log.info("Processing student {}: extracted {} answers",
                         studentId, studentAnswersMap.size());
-                
-                // 문제 번호 기준으로 채점 수행
-                GradingResult result = gradingService.gradeAnswersWithQuestionNumbers(
-                        studentAnswersMap, correctAnswersMap, studentId, examDate, userEmail);
+
+                GradingResult result =
+                        gradingService.gradeAnswersWithQuestionNumbers(
+                                studentAnswersMap,
+                                correctAnswersMap,
+                                studentId,
+                                examDate,
+                                userEmail
+                        );
+
                 gradingResults.add(result);
-                
-                // 이미지 정보 저장 (나중에 excelId 설정)
+
                 ImageFile imageFile = new ImageFile();
                 imageFile.setImageName(fileName);
                 imageFile.setData(studentImageBytes);
                 imageFile.setExamDate(examDate);
                 imageFile.setSubmitDate(submitDate);
                 imageFile.setEmail(userEmail);
+
                 studentImages.add(imageFile);
-                
+
             } catch (Exception e) {
                 log.error("Error processing student file: {}", studentFile.getOriginalFilename(), e);
                 throw new RuntimeException("학생 답안 처리 중 오류 발생: " + studentFile.getOriginalFilename(), e);
@@ -137,16 +148,15 @@ public class FileUploadService {
         if (fileName == null || fileName.isEmpty()) {
             return "unknown_" + System.currentTimeMillis();
         }
-        
-        // 파일명에서 학번 추출 시도
+
         Matcher matcher = STUDENT_ID_PATTERN.matcher(fileName);
         if (matcher.find()) {
             return matcher.group(1);
         }
-        
-        // 확장자 제거 후 파일명 사용
-        String nameWithoutExt = fileName.substring(0, fileName.lastIndexOf('.'));
-        return nameWithoutExt.isEmpty() ? "unknown_" + System.currentTimeMillis() : nameWithoutExt;
+
+        // 확장자 제거
+        int dotIndex = fileName.lastIndexOf('.');
+        return dotIndex > 0 ? fileName.substring(0, dotIndex) : fileName;
     }
 
 }
