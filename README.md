@@ -1,7 +1,24 @@
 # 스마트 채점봇
 
+## 프로젝트 소개
+- OCR 기반 자동 채점 서비스(캡스톤 디자인 프로젝트에서 개인적으로 리팩토링 및 개선하였습니다.)
+- 시험지 이미지 업로드 → 자동 채점 → 결과 엑셀 제공
+
+## 핵심 기능
+- 이미지 업로드 및 날짜 기반 채점
+- Google Cloud Vision OCR 기반 답안 인식
+- 문제 번호 기준 정확한 채점
+- 결과 엑셀 생성 및 통계 시각화
+
+## 기술 스택
+- Backend: Spring Boot, JPA, MySQL, AWS RDS
+- Frontend: Thymeleaf, Bootstrap, Chart.js
+- OCR: Google Cloud Vision
+- Infra: Docker
+
+## 리팩토링 및 성능 개선 사항(2026)
 <details>
-<summary><b>🔄 리팩토링 사항(2026)</b></summary>
+<summary><b>리팩토링 및 성능 개선 사항(2026)</b></summary>
 
 프로젝트의 코드 품질과 유지보수성을 향상시키기 위한 주요 리팩토링 작업을 수행했습니다.
 
@@ -57,7 +74,7 @@
   - 시험 날짜 조건을 일자 범위 조회 방식으로 수정하여 데이터 정상 조회
   - REST API 응답(JSON)과 Chart.js 데이터 구조 간 매핑 오류 수정
 
-#### **추가 성능 개선**
+### **추가 성능 개선**
 - **인식된 문제 개수가 다른 문제와 ocr 인식률의 오차 개선**
   - 전처리, confidence 기반 재시도
 - **ocr 정확도 로그 시각화**
@@ -67,10 +84,33 @@
 - **실패/오류 대응&보정 전략**
   - ocr 실패시 fallback, 문제 개수 불일치 시 채점 제외, 신뢰도 낮은 결과 flag 처리(수동 검증 포인트), 원본 이미지에 인식 결과 매핑
 
+
 </details>
 
----
+## 시스템 아키텍처
 
+![img.png](outputfile/img.png)
+
+→ `entity 구성 DB 스키마`
+
+<br/>
+
+전체적인 설계는 다음과 같습니다.
+
+![img_1.png](outputfile/img_1.png)
+
+→ `전체 구성 클래스 다이어그램`
+
+![img_2.png](outputfile/img_2.png)
+
+→ `최종적인 시스템 설계 구상도`
+
+<br/>
+
+
+---
+<details>
+<summary><b>이전 버전(2024)</b></summary>
 >저희 프로젝트명인 스마트 채점봇은 이미지 인식을 통해 자동으로 채점해서 파일까지 만들어준다는 의미에서 지어졌습니다.<br/>
 
 >readme작성자: 김나연(frontend, spring 서버 담당)
@@ -325,17 +365,6 @@ OCR 엔진 : OpenCV를 활용한 이미지 전처리 과정을 거쳐 tensorflow
     * jdk 17
     * Flask 3.12
 
-* 의존성
-  - spring-boot-starter-web: REST API 개발
-  - spring-boot-starter-data-jpa: JPA 기반 DB 연동
-  - spring-boot-starter-thymeleaf: Thymeleaf 템플릿 엔진
-  - spring-boot-starter-mail: 이메일 발송
-  - spring-boot-starter-security: 인증 및 권한 부여
-  - thymeleaf-extras-springsecurity: Thymeleaf와 Spring Security 통합
-  - lombok: 보일러플레이트 코드 최소화
-  - mysql-connector-j: MySQL 연결
-
-
 
 * 프로그램 실행 환경
     * Docker container에서 실행
@@ -396,3 +425,4 @@ OCR 엔진 : OpenCV를 활용한 이미지 전처리 과정을 거쳐 tensorflow
 [무작위 샘플 실제 값/예측 값 비교 이미지]
 이 표는 검증에 사용된 데이터 중 무작위로 10개를 선택하여 CNN 모델이 예측한 값과 실제 값의 비교를 보여줍니다. 이를 통해 모델이 어떻게 잘못 인식했는지를 확인할 수 있습니다.
 
+</details>
