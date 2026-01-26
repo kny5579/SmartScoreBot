@@ -96,10 +96,22 @@ public class ResultService {
     }
 
     public List<Integer> getScoreDistribution(String dateString, String userEmail) throws ParseException {
-        LocalDate date = LocalDate.parse(dateString);
+        // 빈 문자열이나 null 체크
+        if (dateString == null || dateString.trim().isEmpty()) {
+            log.warn("Empty or null date string provided for score distribution");
+            return Collections.emptyList();
+        }
 
-        LocalDateTime startLdt = date.atStartOfDay();
-        LocalDateTime endLdt = date.plusDays(1).atStartOfDay();
+        // DateUtils를 사용하여 일관성 유지
+        Date date = DateUtils.parseDate(dateString.trim());
+
+        // 날짜 범위 설정 (하루 전체)
+        LocalDate localDate = date.toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate();
+        
+        LocalDateTime startLdt = localDate.atStartOfDay();
+        LocalDateTime endLdt = localDate.plusDays(1).atStartOfDay();
 
         Date start = Date.from(startLdt.atZone(ZoneId.systemDefault()).toInstant());
         Date end = Date.from(endLdt.atZone(ZoneId.systemDefault()).toInstant());

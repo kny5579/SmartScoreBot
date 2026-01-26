@@ -16,21 +16,21 @@ public class GradingService {
 
     private final StudentGradesRepository studentGradesRepository;
     public GradingResult gradeAnswersWithQuestionNumbers(
-            Map<Integer, String> studentAnswers, 
-            Map<Integer, String> correctAnswers,
+            Map<String, String> studentAnswers, 
+            Map<String, String> correctAnswers,
             String studentId, Date examDate, String email) {
         
         // 모든 문제 번호 수집 (학생 답안과 정답 모두 포함)
-        Set<Integer> allQuestionNumbers = new LinkedHashSet<>();
+        Set<String> allQuestionNumbers = new LinkedHashSet<>();
         allQuestionNumbers.addAll(correctAnswers.keySet());
         allQuestionNumbers.addAll(studentAnswers.keySet());
         
         int totalQuestions = allQuestionNumbers.size();
         int correctCount = 0;
-        Map<Integer, Boolean> questionResults = new LinkedHashMap<>();
+        Map<String, Boolean> questionResults = new LinkedHashMap<>();
         
-        // 문제 번호별로 채점
-        for (Integer questionNumber : allQuestionNumbers) {
+        // 문제 번호별로 채점 (소문제 포함)
+        for (String questionNumber : allQuestionNumbers) {
             String studentAnswer = studentAnswers.getOrDefault(questionNumber, "").trim();
             String correctAnswer = correctAnswers.getOrDefault(questionNumber, "").trim();
             
@@ -66,7 +66,7 @@ public class GradingService {
         
         int totalQuestions = Math.max(studentAnswers.size(), correctAnswers.size());
         int correctCount = 0;
-        Map<Integer, Boolean> questionResults = new LinkedHashMap<>();
+        Map<String, Boolean> questionResults = new LinkedHashMap<>();
         
         for (int i = 0; i < totalQuestions; i++) {
             String studentAnswer = i < studentAnswers.size() ? 
@@ -78,7 +78,7 @@ public class GradingService {
             if (isCorrect) {
                 correctCount++;
             }
-            questionResults.put(i + 1, isCorrect);
+            questionResults.put(String.valueOf(i + 1), isCorrect);
         }
         
         int score = totalQuestions > 0 ? 
@@ -107,7 +107,7 @@ public class GradingService {
             int score,
             int correctCount,
             int totalQuestions,
-            Map<Integer, Boolean> questionResults
+            Map<String, Boolean> questionResults  // 문제 번호를 문자열로 변경 (소문제 지원)
     ) {}
 }
 

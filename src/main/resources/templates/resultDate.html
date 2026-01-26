@@ -184,6 +184,13 @@
 
   document.addEventListener("DOMContentLoaded", function() {
     const examDate = /*[[${examDate}]]*/ '';
+    
+    // examDate가 비어있으면 차트를 그리지 않음
+    if (!examDate || examDate.trim() === '') {
+      console.log("No exam date provided, skipping chart");
+      return;
+    }
+    
     const ctx = document.getElementById('scoreDistributionChart').getContext('2d');
     let scoreDistributionChart;
 

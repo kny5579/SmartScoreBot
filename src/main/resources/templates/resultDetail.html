@@ -167,7 +167,7 @@
 
 <script th:inline="javascript">
   let scoreDistributionChart = null;
-  const examDate = [[${examDate}]];
+  const examDate = '';
 
    console.log("examDate =", examDate);
 
@@ -175,6 +175,12 @@
 
     if (scoreDistributionChart) {
       scoreDistributionChart.resize();
+      return;
+    }
+
+    // examDate가 비어있으면 차트를 그리지 않음
+    if (!examDate || examDate.trim() === '') {
+      console.log("No exam date provided, skipping chart");
       return;
     }
 

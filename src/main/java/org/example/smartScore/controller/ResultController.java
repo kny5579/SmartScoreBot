@@ -36,9 +36,17 @@ public class ResultController {
                 model.addAttribute("examDate", resultData.examDate());
                 model.addAttribute("imageFiles", resultData.imageFiles());
                 model.addAttribute("excelFiles", resultData.excelFiles());
+            } else {
+                // 데이터가 없을 때도 빈 문자열로 설정하여 JavaScript 오류 방지
+                model.addAttribute("examDate", "");
+                model.addAttribute("imageFiles", Collections.emptyList());
+                model.addAttribute("excelFiles", Collections.emptyList());
             }
         } catch (Exception e) {
             log.error("Error fetching result data", e);
+            model.addAttribute("examDate", "");
+            model.addAttribute("imageFiles", Collections.emptyList());
+            model.addAttribute("excelFiles", Collections.emptyList());
         }
         return "result";
     }
@@ -54,8 +62,14 @@ public class ResultController {
             model.addAttribute("excelFiles", resultData.excelFiles());
         } catch (ParseException e) {
             log.error("Error parsing date: {}", dateString, e);
+            model.addAttribute("examDate", dateString); // 입력된 날짜를 그대로 전달
+            model.addAttribute("imageFiles", Collections.emptyList());
+            model.addAttribute("excelFiles", Collections.emptyList());
         } catch (Exception e) {
             log.error("Error fetching result data for date: {}", dateString, e);
+            model.addAttribute("examDate", dateString); // 입력된 날짜를 그대로 전달
+            model.addAttribute("imageFiles", Collections.emptyList());
+            model.addAttribute("excelFiles", Collections.emptyList());
         }
         return "resultDate";
     }
