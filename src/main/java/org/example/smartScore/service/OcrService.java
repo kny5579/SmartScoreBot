@@ -94,12 +94,12 @@ public class OcrService {
         if (questionNumber == null || questionNumber.isEmpty()) {
             return questionNumber;
         }
-        
+
         String normalized = questionNumber.trim();
-        
+
         // 끝의 구분자 제거 (번, ., ), : 등)
         normalized = normalized.replaceAll("[번:.)]\\s*$", "");
-        
+
         return normalized;
     }
 
@@ -112,24 +112,24 @@ public class OcrService {
         if (line == null || line.trim().isEmpty()) {
             return false;
         }
-        
+
         String trimmed = line.trim();
-        
+
         // 숫자만 있는 줄은 문제 번호가 아님 (답으로 간주)
         if (trimmed.matches("^\\d+$")) {
             return false;
         }
-        
+
         // 소문제 번호 패턴을 먼저 검사: "15-1)", "16-2)", "15-1." 등
         if (trimmed.matches("^\\d{1,2}-\\d{1,2}[번.)]?\\s*$")) {
             return true;
         }
-        
+
         // 단일 문제 번호 패턴: "1.", "14.", "1번" 등
         if (trimmed.matches("^\\d{1,2}[번.)]?\\s*$")) {
             return true;
         }
-        
+
         return false;
     }
 
@@ -142,9 +142,9 @@ public class OcrService {
         if (line == null || line.trim().isEmpty()) {
             return null;
         }
-        
+
         String trimmed = line.trim();
-        
+
         // 소문제 번호를 먼저 검사 (단일 문제보다 우선)
         // "15-1)"이 "15"로 잘리는 버그 방지
         Pattern subPattern = Pattern.compile("^(\\d{1,2}-\\d{1,2})[번.)]?");
@@ -152,14 +152,14 @@ public class OcrService {
         if (subMatcher.find()) {
             return normalizeQuestionNumber(subMatcher.group(1));
         }
-        
+
         // 단일 문제 번호 추출: "1.", "14." 등
         Pattern singlePattern = Pattern.compile("^(\\d{1,2})[번.)]?");
         Matcher singleMatcher = singlePattern.matcher(trimmed);
         if (singleMatcher.find()) {
             return normalizeQuestionNumber(singleMatcher.group(1));
         }
-        
+
         return null;
     }
 
@@ -172,64 +172,61 @@ public class OcrService {
         if (line == null || line.trim().isEmpty()) {
             return false;
         }
-        
+
         String trimmed = line.trim();
-        
+
         // 문제 번호 패턴이면 답안이 아님
         if (isQuestionNumberLine(trimmed)) {
             return false;
         }
-        
+
         // 숫자만 있는 경우 (답안으로 간주)
         if (trimmed.matches("^\\d+$")) {
             return true;
         }
-        
+
         // Boolean 값
         if (trimmed.matches("^(?i)(true|false)$")) {
             return true;
         }
-        
+
         // 한글이 포함된 경우 (한글 단어, 숫자+한글 조합 등)
         if (trimmed.matches(".*[가-힣]+.*")) {
             return true;
         }
-        
+
         // 영어 단어 (알파벳만 또는 알파벳+숫자 조합)
         if (trimmed.matches("^[a-zA-Z0-9\\s]+$") && trimmed.length() > 0) {
             // 문제 번호 패턴이 아닌 경우만
-            if (!trimmed.matches("^\\d{1,2}[번.)]?\\s*$") && 
+            if (!trimmed.matches("^\\d{1,2}[번.)]?\\s*$") &&
                 !trimmed.matches("^\\d{1,2}-\\d{1,2}[번.)]?\\s*$")) {
                 return true;
             }
         }
-        
+
         return false;
     }
 
     /**
+     * 답안 보정
      * 답안을 추출합니다.
-     * 숫자, True/False, 한글/영어 단어를 그대로 반환합니다.
+     * 숫자, True/False, 한글/영어 단어를 그대로 반환
      */
     private String extractAnswer(String line) {
         if (line == null || line.trim().isEmpty()) {
             return null;
         }
-        
-        String trimmed = line.trim();
-        
-        // Boolean 값은 대소문자 구분 없이 처리
-        if (trimmed.matches("^(?i)(true|false)$")) {
-            return trimmed.substring(0, 1).toUpperCase() + trimmed.substring(1).toLowerCase();
-        }
-        
-        // 그 외는 그대로 반환 (공백 제거)
-        return trimmed;
+
+        String s = line.trim();
+
+        if (s.isEmpty()) return null;
+
+        return s;
     }
 
     /**
      * 텍스트에서 답안 추출 (한 줄 매칭 우선, 상태 기반 파싱 보조)
-     * 
+     *
      * 파싱 우선순위:
      * 1. 한 줄 매칭 (최우선): "1. 4", "15-1) 빅데이터" 등 문제번호+답이 같은 줄
      * 2. 상태 기반 파싱: 문제 번호만 있는 줄 → 다음 줄에서 답 추출
@@ -246,7 +243,7 @@ public class OcrService {
         for (int i = 0; i < lines.length; i++) {
             String line = lines[i];
             String trimmed = line.trim();
-            
+
             // 빈 줄은 건너뛰기
             if (trimmed.isEmpty()) {
                 continue;
@@ -257,15 +254,15 @@ public class OcrService {
             if (singleLineMatcher.find()) {
                 String questionNumRaw = singleLineMatcher.group(1);
                 String answerRaw = singleLineMatcher.group(2).trim();
-                
+
                 // 문제 번호 정규화
                 String questionNum = normalizeQuestionNumber(questionNumRaw);
                 String answer = extractAnswer(answerRaw);
-                
+
                 if (questionNum != null && answer != null && !answer.isEmpty()) {
                     answerMap.put(questionNum, answer);
                     log.debug("Single-line match: question {} -> answer {} (from: '{}')", questionNum, answer, trimmed);
-                    
+
                     // 한 줄 매칭이 성공했으므로 currentQuestion 초기화
                     currentQuestion = null;
                     continue;
@@ -279,7 +276,7 @@ public class OcrService {
                 if (questionNum != null) {
                     // 이전 문제에 답이 없었던 경우 경고
                     if (currentQuestion != null) {
-                        log.warn("Question {} found but no answer was mapped (new question: {})", 
+                        log.warn("Question {} found but no answer was mapped (new question: {})",
                                 currentQuestion, questionNum);
                     }
                     currentQuestion = questionNum;
@@ -349,7 +346,7 @@ public class OcrService {
     ) throws IOException {
 
         AnnotateImageResponse ocrResponse = extractOcrResponse(imageBytes);
-        String fullText = ocrResponse.hasFullTextAnnotation() 
+        String fullText = ocrResponse.hasFullTextAnnotation()
                 ? ocrResponse.getFullTextAnnotation().getText()
                 : extractFullText(imageBytes);
 
@@ -388,7 +385,7 @@ public class OcrService {
      */
     public OcrResult extractAnswersWithConfidence(byte[] imageBytes) throws IOException {
         AnnotateImageResponse ocrResponse = extractOcrResponse(imageBytes);
-        String fullText = ocrResponse.hasFullTextAnnotation() 
+        String fullText = ocrResponse.hasFullTextAnnotation()
                 ? ocrResponse.getFullTextAnnotation().getText()
                 : extractFullText(imageBytes);
 
@@ -401,5 +398,6 @@ public class OcrService {
 
         return new OcrResult(null, answers, confidenceMap);
     }
+
 }
 
