@@ -312,31 +312,321 @@ public class OcrService {
         return answerMap;
     }
 
+    // Confidence 재계산 기준값 (threshold)
+    private static final float CONFIDENCE_THRESHOLD = 0.7f;
+    
+    // 기본 OCR confidence (Google Cloud Vision API 기본값)
+    private static final float BASE_OCR_CONFIDENCE = 0.95f;
+    
     /**
-     * TextAnnotation에서 문제별 confidence 추출
-     * Google Cloud Vision API는 Block 레벨에서 confidence를 제공하지 않으므로,
-     * 전체 이미지에 대해 기본 confidence 값(0.95)을 사용합니다.
+     * TextAnnotation에서 문제별 confidence 추출 및 재계산
+     * 
+     * 재계산 기준:
+     * - Base Score: 기본 OCR confidence (0.95, 가중치 0.3)
+     * - Length Score: 답안 길이 기반 (가중치 0.2)
+     * - Regex Score: 정규식 매칭 여부 (가중치 0.3)
+     * - Type Score: 타입 변환 성공 여부 (가중치 0.2)
+     * 
+     * @param textAnnotation TextAnnotation 객체
+     * @param answers 추출된 답안 맵
+     * @return ConfidenceResult 객체 (confidence 맵과 lowConfidence 맵 포함)
      */
-    private Map<String, Float> extractConfidenceMap(
+    private ConfidenceResult extractConfidenceMap(
             TextAnnotation textAnnotation,
             Map<String, String> answers) {
         Map<String, Float> confidenceMap = new LinkedHashMap<>();
+        Map<String, Boolean> lowConfidenceMap = new LinkedHashMap<>();
 
-        if (textAnnotation == null) {
-            return confidenceMap;
+        if (textAnnotation == null || answers == null || answers.isEmpty()) {
+            return new ConfidenceResult(confidenceMap, lowConfidenceMap);
         }
 
-        // Google Cloud Vision API의 TEXT_DETECTION은 Block 레벨 confidence를 제공하지 않음
-        // 대신 기본 confidence 값 사용 (실제로는 OCR 품질에 따라 달라질 수 있음)
-        // 일반적으로 Google Cloud Vision API의 텍스트 인식 정확도는 높으므로 0.95 사용
-        float defaultConfidence = 0.95f;
-
-        // 각 문제에 대해 기본 confidence 할당
-        for (String questionNum : answers.keySet()) {
-            confidenceMap.put(questionNum, defaultConfidence);
+        // 각 문제에 대해 동적으로 confidence 재계산
+        for (Map.Entry<String, String> entry : answers.entrySet()) {
+            String questionNum = entry.getKey();
+            String answer = entry.getValue();
+            
+            // 빈 답안 처리 (null, 빈 문자열, 공백)
+            if (answer == null || answer.trim().isEmpty()) {
+                confidenceMap.put(questionNum, 0.0f);
+                lowConfidenceMap.put(questionNum, true);
+                log.warn("Empty answer for question {}: confidence=0.0, lowConfidence=true", questionNum);
+                continue;
+            }
+            
+            // 동적 confidence 재계산
+            ConfidenceScores scores = recalculateConfidence(questionNum, answer);
+            float finalConfidence = scores.finalConfidence;
+            confidenceMap.put(questionNum, finalConfidence);
+            
+            // threshold 이하인 경우 lowConfidence 플래그 설정
+            boolean isLowConfidence = finalConfidence <= CONFIDENCE_THRESHOLD;
+            lowConfidenceMap.put(questionNum, isLowConfidence);
+            
+            // 디버깅 로그
+            log.debug("Question {}: baseScore={}, lengthScore={}, regexScore={}, typeScore={}, finalConfidence={}, answer='{}'", 
+                    questionNum, 
+                    String.format("%.2f", scores.baseScore),
+                    String.format("%.2f", scores.lengthScore),
+                    String.format("%.2f", scores.regexScore),
+                    String.format("%.2f", scores.typeScore),
+                    String.format("%.2f", finalConfidence),
+                    answer);
+            
+            if (isLowConfidence) {
+                log.warn("Low confidence detected for question {}: confidence={}, answer='{}'", 
+                        questionNum, String.format("%.2f", finalConfidence), answer);
+            }
         }
 
-        return confidenceMap;
+        return new ConfidenceResult(confidenceMap, lowConfidenceMap);
+    }
+    
+    /**
+     * Confidence 점수들을 담는 내부 클래스
+     */
+    private static class ConfidenceScores {
+        final float baseScore;
+        final float lengthScore;
+        final float regexScore;
+        final float typeScore;
+        final float finalConfidence;
+        
+        ConfidenceScores(float baseScore, float lengthScore, float regexScore, float typeScore, float finalConfidence) {
+            this.baseScore = baseScore;
+            this.lengthScore = lengthScore;
+            this.regexScore = regexScore;
+            this.typeScore = typeScore;
+            this.finalConfidence = finalConfidence;
+        }
+    }
+    
+    /**
+     * Confidence 재계산
+     * 
+     * 가중치: base 0.3, length 0.2, regex 0.3, type 0.2 (합계 1.0)
+     * 
+     * @param questionNum 문제 번호
+     * @param answer 답안 (null이 아니고 빈 문자열이 아님을 보장)
+     * @return ConfidenceScores 객체 (각 점수와 최종 confidence 포함)
+     */
+    private ConfidenceScores recalculateConfidence(String questionNum, String answer) {
+        // 1. Base Score (기본 OCR confidence)
+        float baseScore = BASE_OCR_CONFIDENCE;
+        
+        // 2. Length Score (문자 길이 기반)
+        float lengthScore = calculateLengthScore(answer);
+        
+        // 3. Regex Score (정규식 매칭 기반)
+        float regexScore = calculateRegexScore(questionNum, answer);
+        
+        // 4. Type Score (타입 변환 성공 여부)
+        float typeScore = calculateTypeScore(answer);
+        
+        // 가중 평균으로 최종 confidence 계산 (합계 1.0)
+        // base: 0.3, length: 0.2, regex: 0.3, type: 0.2
+        float finalConfidence = (baseScore * 0.3f) + 
+                                (lengthScore * 0.2f) + 
+                                (regexScore * 0.3f) + 
+                                (typeScore * 0.2f);
+        
+        // 0.0 ~ 1.0 범위로 제한
+        finalConfidence = Math.max(0.0f, Math.min(1.0f, finalConfidence));
+        
+        return new ConfidenceScores(baseScore, lengthScore, regexScore, typeScore, finalConfidence);
+    }
+    
+    /**
+     * 문자 길이 기반 점수 계산
+     * 
+     * @param answer 답안
+     * @return 길이 기반 점수 (0.0 ~ 1.0)
+     */
+    private float calculateLengthScore(String answer) {
+        if (answer == null || answer.trim().isEmpty()) {
+            return 0.0f;
+        }
+        
+        int length = answer.trim().length();
+        
+        // 답안 길이가 너무 짧거나 길면 점수 감소
+        if (length == 0) {
+            return 0.0f;
+        } else if (length == 1) {
+            return 0.8f;  // 단일 문자 답안 (예: "1", "O", "X")
+        } else if (length >= 2 && length <= 10) {
+            return 1.0f;  // 적절한 길이
+        } else if (length > 10 && length <= 20) {
+            return 0.9f;  // 다소 긴 답안
+        } else {
+            return 0.7f;  // 매우 긴 답안 (의심스러움)
+        }
+    }
+    
+    /**
+     * 정규식 매칭 여부 기반 점수 계산
+     * 
+     * 숫자형 문제에서 "|", "나", "l", "I" 등 숫자가 아닌 문자는 0점
+     * 
+     * @param questionNum 문제 번호
+     * @param answer 답안
+     * @return 정규식 매칭 기반 점수 (0.0 ~ 1.0)
+     */
+    private float calculateRegexScore(String questionNum, String answer) {
+        String trimmed = answer.trim();
+        
+        // 숫자만 있는 답안 (숫자형) - 순수 숫자만 허용
+        if (trimmed.matches("^\\d+$")) {
+            return 1.0f;
+        }
+        
+        // Boolean 값 패턴 - true/false만 허용 (대소문자 무관)
+        if (trimmed.matches("^(?i)(true|false)$")) {
+            return 1.0f;
+        }
+        
+        // 숫자형으로 보이지만 오인식 문자가 포함된 경우 (|, 나, l, I 등)
+        // 숫자가 아닌 문자가 포함되어 있으면 0점
+        if (trimmed.matches(".*[|나lI!].*")) {
+            // 숫자로 변환 시도
+            String numericResult = tryNumericConversion(trimmed);
+            if (numericResult == null || numericResult.isEmpty()) {
+                return 0.0f;  // 숫자로 변환 실패
+            }
+            // 숫자로 변환은 되지만 원본에 오인식 문자가 있으면 점수 감소
+            if (!trimmed.equals(numericResult)) {
+                return 0.0f;  // 오인식 문자 포함
+            }
+        }
+        
+        // 한글이 포함된 답안
+        if (trimmed.matches(".*[가-힣]+.*")) {
+            return 0.8f;
+        }
+        
+        // 영어 단어 답안 (알파벳과 숫자 조합)
+        if (trimmed.matches("^[a-zA-Z0-9\\s]+$")) {
+            return 0.8f;
+        }
+        
+        // 특수 문자만 있는 경우
+        if (trimmed.matches("^[^a-zA-Z0-9가-힣]+$")) {
+            return 0.0f;
+        }
+        
+        // 그 외 (혼합)
+        return 0.5f;
+    }
+    
+    /**
+     * 타입 변환 성공 여부 기반 점수 계산
+     * 
+     * - 숫자형: 숫자로 정상 파싱된 경우만 1.0, 오인식 문자 포함 시 0.0
+     * - Boolean: true/false만 허용, 그 외 0.0
+     * - 문자열: 기본 점수
+     * 
+     * @param answer 답안
+     * @return 타입 변환 기반 점수 (0.0 ~ 1.0)
+     */
+    private float calculateTypeScore(String answer) {
+        String trimmed = answer.trim();
+        
+        // 숫자형 변환 시도
+        String numericResult = tryNumericConversion(trimmed);
+        if (numericResult != null && !numericResult.isEmpty()) {
+            // 원본과 변환 결과가 다르면 오인식 문자 포함
+            if (!trimmed.equals(numericResult)) {
+                // 오인식 문자(|, 나, l, I 등)가 포함된 경우
+                return 0.0f;
+            }
+            // 순수 숫자로 정상 파싱된 경우
+            return 1.0f;
+        }
+        
+        // Boolean 변환 시도
+        String booleanResult = tryBooleanConversion(trimmed);
+        if (booleanResult != null) {
+            // true/false만 허용 (대소문자 무관)
+            if (trimmed.matches("^(?i)(true|false)$")) {
+                return 1.0f;
+            }
+            // 그 외 Boolean 변환 가능한 값 (1, 0, O, X 등)은 0점
+            return 0.0f;
+        }
+        
+        // 문자열 타입 (기본 점수)
+        return 0.5f;
+    }
+    
+    /**
+     * 숫자형 변환 시도
+     * 
+     * @param answer 답안
+     * @return 변환된 숫자 문자열, 실패 시 null
+     */
+    private String tryNumericConversion(String answer) {
+        if (answer == null || answer.trim().isEmpty()) {
+            return null;
+        }
+        
+        String corrected = answer.trim();
+        
+        // 특수 문자 보정 (GradingService와 동일한 로직)
+        corrected = corrected.replace("나", "4");
+        corrected = corrected.replace("|", "1");
+        corrected = corrected.replace("Ⅰ", "1");
+        corrected = corrected.replace("l", "1");
+        corrected = corrected.replace("!", "1");
+        corrected = corrected.replace("O", "0");
+        corrected = corrected.replace("o", "0");
+        corrected = corrected.replace("S", "5");
+        corrected = corrected.replace("B", "8");
+        
+        // 숫자가 아닌 문자 제거
+        corrected = corrected.replaceAll("[^0-9]", "");
+        
+        if (corrected.isEmpty()) {
+            return null;
+        }
+        
+        return corrected;
+    }
+    
+    /**
+     * Boolean 변환 시도
+     * 
+     * true/false만 허용 (대소문자 무관)
+     * 
+     * @param answer 답안
+     * @return 변환된 Boolean 문자열 ("true" 또는 "false"), 실패 시 null
+     */
+    private String tryBooleanConversion(String answer) {
+        String trimmed = answer.trim();
+        String lower = trimmed.toLowerCase();
+        
+        // true/false만 허용
+        if (lower.equals("true")) {
+            return "true";
+        }
+        
+        if (lower.equals("false")) {
+            return "false";
+        }
+        
+        return null;
+    }
+    
+    /**
+     * Confidence 결과를 담는 내부 클래스
+     */
+    private static class ConfidenceResult {
+        final Map<String, Float> confidenceMap;
+        final Map<String, Boolean> lowConfidenceMap;
+        
+        ConfidenceResult(Map<String, Float> confidenceMap, Map<String, Boolean> lowConfidenceMap) {
+            this.confidenceMap = confidenceMap;
+            this.lowConfidenceMap = lowConfidenceMap;
+        }
     }
 
     // 최종 메서드
@@ -359,13 +649,15 @@ public class OcrService {
         }
 
         Map<String, String> answers = extractAnswersFromText(fullText);
-        Map<String, Float> confidenceMap = ocrResponse.hasFullTextAnnotation()
+        ConfidenceResult confidenceResult = ocrResponse.hasFullTextAnnotation()
                 ? extractConfidenceMap(ocrResponse.getFullTextAnnotation(), answers)
-                : Map.of();
+                : new ConfidenceResult(Map.of(), Map.of());
 
         log.info("Extracted {} answers", answers.size());
 
-        return new OcrResult(studentId, answers, confidenceMap);
+        return new OcrResult(studentId, answers, 
+                confidenceResult.confidenceMap, 
+                confidenceResult.lowConfidenceMap);
     }
 
     // 정답지 추출용. 학번 추출 안함
@@ -390,13 +682,15 @@ public class OcrService {
                 : extractFullText(imageBytes);
 
         Map<String, String> answers = extractAnswersFromText(fullText);
-        Map<String, Float> confidenceMap = ocrResponse.hasFullTextAnnotation()
+        ConfidenceResult confidenceResult = ocrResponse.hasFullTextAnnotation()
                 ? extractConfidenceMap(ocrResponse.getFullTextAnnotation(), answers)
-                : Map.of();
+                : new ConfidenceResult(Map.of(), Map.of());
 
         log.info("Extracted {} correct answers from answer sheet", answers.size());
 
-        return new OcrResult(null, answers, confidenceMap);
+        return new OcrResult(null, answers, 
+                confidenceResult.confidenceMap, 
+                confidenceResult.lowConfidenceMap);
     }
 
 }
